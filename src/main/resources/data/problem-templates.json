@@ -1,0 +1,113 @@
+[
+  { "code": "m1", "category": "MERGE", "operation": "ADD", "numberPattern": "ADD_PAIR",
+    "unit": "쪽", "minGrade": 1, "maxGrade": 3, "cues": ["모두"],
+    "pattern": "{name}{은/는} 어제 동화책을 {a}쪽 «읽었고», 오늘은 {b}쪽을 읽었습니다. {name}{이/가} «이틀 동안» 읽은 동화책은 «모두» 몇 쪽입니까?" },
+
+  { "code": "m2", "category": "MERGE", "operation": "ADD", "numberPattern": "ADD_PAIR",
+    "unit": "권", "minGrade": 1, "maxGrade": 4, "cues": ["합하면", "모두"],
+    "pattern": "도서관에 위인전이 {a}권, 과학책이 {b}권 «있습니다». 위인전과 과학책을 «합하면» «모두» 몇 권입니까?" },
+
+  { "code": "m3", "category": "MERGE", "operation": "ADD", "numberPattern": "ADD_PAIR",
+    "unit": "마리", "minGrade": 1, "maxGrade": 3, "cues": ["모두"],
+    "pattern": "«농장에서» 오리를 {a}마리, 닭을 {b}마리 «기르고» 있습니다. 기르는 오리와 닭은 «모두» 몇 마리입니까?" },
+
+  { "code": "m4", "category": "MERGE", "operation": "ADD", "numberPattern": "ADD_PAIR",
+    "unit": "개", "minGrade": 1, "maxGrade": 3, "cues": ["합치면", "모두"],
+    "pattern": "제과점에서 식빵을 {a}개, 단팥빵을 {b}개 «만들었습니다». 두 종류의 빵을 «합치면» «모두» 몇 개입니까?" },
+
+  { "code": "m5", "category": "MERGE", "operation": "ADD", "numberPattern": "ADD_PAIR",
+    "unit": "명", "minGrade": 4, "maxGrade": 6, "cues": ["모두"],
+    "pattern": "극장에 1회 차 관객이 {a}명, 2회 차 관객이 {b}명 «들어왔습니다». 두 회 차의 «관객»은 «모두» 몇 명입니까?" },
+
+  { "code": "n1", "category": "INCREASE", "operation": "ADD", "numberPattern": "ADD_PAIR",
+    "unit": "명", "minGrade": 1, "maxGrade": 2, "cues": ["더 탔습니다", "모두"],
+    "pattern": "버스에 승객이 {a}명 «타고 있었습니다». 다음 정류장에서 승객 {b}명이 «더 탔습니다». 지금 버스에 타고 있는 승객은 «모두» 몇 명입니까?" },
+
+  { "code": "n2", "category": "INCREASE", "operation": "ADD", "numberPattern": "ADD_PAIR",
+    "unit": "장", "minGrade": 1, "maxGrade": 4, "cues": ["더 받았습니다", "모두"],
+    "pattern": "{name}{은/는} 우표를 {a}장 «가지고 있었습니다». 삼촌에게서 우표 {b}장을 «더 받았습니다». {name}{이/가} 가지게 된 우표는 «모두» 몇 장입니까?" },
+
+  { "code": "n3", "category": "INCREASE", "operation": "ADD", "numberPattern": "ADD_PAIR",
+    "unit": "마리", "minGrade": 1, "maxGrade": 3, "cues": ["더 넣었습니다", "모두"],
+    "pattern": "수족관에 물고기가 {a}마리 «살고 있었습니다». 오늘 새 물고기 {b}마리를 «더 넣었습니다». 지금 수족관의 물고기는 «모두» 몇 마리입니까?" },
+
+  { "code": "n4", "category": "INCREASE", "operation": "ADD", "numberPattern": "ADD_PAIR",
+    "unit": "마리", "minGrade": 1, "maxGrade": 2, "cues": ["태어났습니다", "모두"],
+    "pattern": "농장에 토끼가 {a}마리 «있었습니다». 아기 토끼 {b}마리가 «태어났습니다». 농장의 토끼는 «모두» 몇 마리가 되었습니까?" },
+
+  { "code": "n5", "category": "INCREASE", "operation": "ADD", "numberPattern": "ADD_PAIR",
+    "unit": "명", "minGrade": 4, "maxGrade": 6, "cues": ["새로 가입했습니다", "모두"],
+    "pattern": "어느 누리집의 회원이 {a}명 «있었습니다». 오늘 {b}명이 «새로 가입했습니다». 전체 «회원»은 «모두» 몇 명입니까?" },
+
+  { "code": "d1", "category": "DECREASE", "operation": "SUBTRACT", "numberPattern": "SUB_PAIR",
+    "unit": "개", "minGrade": 1, "maxGrade": 3, "cues": ["나누어 주었습니다", "남은"],
+    "pattern": "{name}{은/는} 사탕을 {a}개 «가지고 있었습니다». 그중 {b}개를 친구에게 «나누어 주었습니다». {name}에게 «남은» 사탕은 몇 개입니까?" },
+
+  { "code": "d2", "category": "DECREASE", "operation": "SUBTRACT", "numberPattern": "SUB_PAIR",
+    "unit": "개", "minGrade": 1, "maxGrade": 4, "cues": ["팔렸습니다", "남은"],
+    "pattern": "과일 가게에 사과가 {a}개 «있었습니다». 오늘 그중 {b}개가 «팔렸습니다». 팔고 «남은» 사과는 몇 개입니까?" },
+
+  { "code": "d3", "category": "DECREASE", "operation": "SUBTRACT", "numberPattern": "SUB_PAIR",
+    "unit": "cm", "minGrade": 1, "maxGrade": 3, "cues": ["잘라 냈습니다", "남은"],
+    "pattern": "색 테이프 {a}cm 중에서 {b}cm를 «잘라 냈습니다». «남은» 색 테이프의 «길이»는 몇 cm입니까?" },
+
+  { "code": "d4", "category": "DECREASE", "operation": "SUBTRACT", "numberPattern": "SUB_PAIR",
+    "unit": "원", "minGrade": 2, "maxGrade": 6, "cues": ["썼습니다", "남은"],
+    "pattern": "{name}{은/는} {a}원을 «가지고 있었습니다». 문구점에서 공책을 사고 {b}원을 «썼습니다». {name}에게 «남은» 돈은 얼마입니까?" },
+
+  { "code": "d5", "category": "DECREASE", "operation": "SUBTRACT", "numberPattern": "SUB_PAIR",
+    "unit": "개", "minGrade": 4, "maxGrade": 6, "cues": ["실어 냈습니다", "남은"],
+    "pattern": "«공장에» 부품이 {a}개 있었습니다. 그중 {b}개를 «실어 냈습니다». 공장에 «남은» 부품은 몇 개입니까?" },
+
+  { "code": "c1", "category": "COMPARE", "operation": "ADD", "numberPattern": "ADD_SMALL_SECOND",
+    "unit": "권", "minGrade": 2, "maxGrade": 3, "cues": ["더 많이"], "needsTwoNames": true,
+    "pattern": "{name}{은/는} 동화책을 {a}권 «가지고 있습니다». {name2}{은/는} {name}보다 {b}권 «더 많이» 가지고 있습니다. {name2}{이/가} 가진 동화책은 «모두» 몇 권입니까?" },
+
+  { "code": "c2", "category": "COMPARE", "operation": "SUBTRACT", "numberPattern": "SUB_PAIR",
+    "unit": "cm", "minGrade": 2, "maxGrade": 3, "cues": ["차이"],
+    "pattern": "빨간 끈은 {a}cm이고, 파란 끈은 {b}cm«입니다». «두 끈»의 길이의 «차이»는 몇 cm입니까?" },
+
+  { "code": "c3", "category": "COMPARE", "operation": "ADD", "numberPattern": "ADD_SMALL_SECOND",
+    "unit": "개", "minGrade": 2, "maxGrade": 3, "cues": ["더 많이"], "needsTwoNames": true,
+    "pattern": "{name}{은/는} 줄넘기를 {a}개 «했습니다». {name2}{은/는} {name}보다 {b}개 «더 많이» 했습니다. {name2}{이/가} 한 줄넘기는 «몇 개»입니까?" },
+
+  { "code": "c4", "category": "COMPARE", "operation": "ADD", "numberPattern": "ADD_SMALL_SECOND",
+    "unit": "km", "minGrade": 4, "maxGrade": 5, "cues": ["더 멀리"],
+    "pattern": "첫째 날 비행기가 «날아간» 거리는 {a}km입니다. 둘째 날은 첫째 날보다 {b}km «더 멀리» 날아갔습니다. 둘째 날 날아간 «거리»는 몇 km입니까?" },
+
+  { "code": "c5", "category": "COMPARE", "operation": "SUBTRACT", "numberPattern": "SUB_PAIR",
+    "unit": "명", "minGrade": 4, "maxGrade": 6, "cues": ["차이"],
+    "pattern": "가 마을의 인구는 {a}명이고, 나 마을의 인구는 {b}명«입니다». «두 마을» 인구의 «차이»는 몇 명입니까?" },
+
+  { "code": "t1", "category": "MULTI", "operation": "ADD", "numberPattern": "ADD_TRIPLE",
+    "unit": "개", "minGrade": 2, "maxGrade": 2, "cues": ["모두"],
+    "pattern": "{name}{은/는} 사과를 {a}개, 배를 {b}개, 귤을 {c}개 «가지고 있습니다». {name}{이/가} 가진 «과일»은 «모두» 몇 개입니까?" },
+
+  { "code": "t2", "category": "MULTI", "operation": "ADD", "numberPattern": "ADD_TRIPLE",
+    "unit": "개", "minGrade": 2, "maxGrade": 3, "cues": ["모두"],
+    "pattern": "가 상자에 공이 {a}개, 나 상자에 {b}개, 다 상자에 {c}개 «들어 있습니다». «세 상자»에 들어 있는 공은 «모두» 몇 개입니까?" },
+
+  { "code": "t3", "category": "MULTI", "operation": "ADD", "numberPattern": "ADD_TRIPLE",
+    "unit": "kg", "minGrade": 4, "maxGrade": 6, "cues": ["모두"],
+    "pattern": "창고에 쌀이 {a}kg, 보리가 {b}kg, 콩이 {c}kg «쌓여 있습니다». 창고에 있는 «곡식»은 «모두» 몇 kg입니까?" },
+
+  { "code": "g1", "category": "GROUP", "operation": "MULTIPLY", "numberPattern": "MUL_PAIR",
+    "unit": "개", "minGrade": 2, "maxGrade": 6, "cues": ["씩"],
+    "pattern": "한 상자에 사탕이 {b}개«씩» 들어 있습니다. «이런 상자가» {a}상자 있습니다. 사탕은 «모두» 몇 개입니까?" },
+
+  { "code": "g2", "category": "GROUP", "operation": "MULTIPLY", "numberPattern": "MUL_PAIR",
+    "unit": "개", "minGrade": 2, "maxGrade": 6, "cues": ["씩"],
+    "pattern": "한 줄에 의자가 {b}개«씩» 놓여 있습니다. 의자가 {a}«줄» 있다면 의자는 «모두» 몇 개입니까?" },
+
+  { "code": "g3", "category": "GROUP", "operation": "MULTIPLY", "numberPattern": "MUL_PAIR",
+    "unit": "원", "minGrade": 3, "maxGrade": 6, "cues": ["한 권에"], "secondScale": 100,
+    "pattern": "공책 «한 권에» {b}원입니다. 공책 {a}권을 사려면 «모두» 얼마가 «필요합니까»?" },
+
+  { "code": "s1", "category": "SHARE", "operation": "DIVIDE", "numberPattern": "DIV_PAIR",
+    "unit": "개", "minGrade": 3, "maxGrade": 6, "cues": ["똑같이 나누어"],
+    "pattern": "사탕 {a}개를 {b}명에게 «똑같이 나누어» 주려고 «합니다». 한 «명»이 몇 개씩 가지게 됩니까?" },
+
+  { "code": "s2", "category": "SHARE", "operation": "DIVIDE", "numberPattern": "DIV_PAIR",
+    "unit": "묶음", "minGrade": 3, "maxGrade": 6, "cues": ["똑같이 나누어"],
+    "pattern": "색종이 {a}장을 한 묶음에 {b}장씩 «똑같이 나누어» «담으려고» 합니다. «몇 묶음»이 됩니까?" }
+]

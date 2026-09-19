@@ -44,8 +44,15 @@ public class TemplateSeeder implements ApplicationRunner {
 
     @Transactional
     public SyncResult sync() throws Exception {
+        ClassPathResource resource = new ClassPathResource(PATH);
+        if (!resource.exists()) {
+            // 빌드에서 리소스가 빠지면(예: .gitignore 가 걸러 버리면) 여기서 멈춘다.
+            // 문제 템플릿이 없으면 학습지를 한 장도 못 만드니 조용히 뜨는 것보다 낫다.
+            throw new IllegalStateException(
+                    PATH + " 이(가) 빌드에 없습니다. src/main/resources/" + PATH + " 가 저장소에 들어 있는지 확인하세요.");
+        }
         List<Row> rows;
-        try (InputStream in = new ClassPathResource(PATH).getInputStream()) {
+        try (InputStream in = resource.getInputStream()) {
             rows = mapper.readValue(in, mapper.getTypeFactory().constructCollectionType(List.class, Row.class));
         }
 
