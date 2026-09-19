@@ -1,0 +1,265 @@
+### 이 파일은 IntelliJ 에서 왼쪽 ▶ 를 눌러 순서대로 실행할 수 있습니다.
+### 위에서부터 차례로 실행하면 토큰이 자동으로 이어집니다.
+
+@host = http://localhost:8080
+
+### 1. 고모(원장) 회원가입 — 계정과 학원이 같이 만들어집니다
+POST {{host}}/api/auth/signup
+Content-Type: application/json
+
+{
+  "email": "gomo@example.com",
+  "password": "password123",
+  "name": "고모",
+  "academyName": "동사수학학원"
+}
+
+> {%
+    client.global.set("token", response.body.token);
+    client.global.set("academyCode", response.body.user.academyCode);
+    client.log("학원 코드: " + response.body.user.academyCode);
+%}
+
+### 2. 로그인 (다음부터는 이걸로)
+POST {{host}}/api/auth/login
+Content-Type: application/json
+
+{ "email": "gomo@example.com", "password": "password123" }
+
+> {% client.global.set("token", response.body.token); %}
+
+### 3. 내 정보
+GET {{host}}/api/auth/me
+Authorization: Bearer {{token}}
+
+### 4. 학원 정보 — 학생에게 알려 줄 학원 코드가 여기 있습니다
+GET {{host}}/api/academy
+Authorization: Bearer {{token}}
+
+### 5. 반 만들기
+POST {{host}}/api/classrooms
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{ "name": "월수 3학년반", "grade": 3 }
+
+> {% client.global.set("classroomId", response.body.id); %}
+
+### 6. 학생 등록 — 응답의 pin 은 여기서만 볼 수 있습니다
+POST {{host}}/api/students
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "김민우",
+  "grade": 3,
+  "pin": "1234",
+  "classroomId": {{classroomId}}
+}
+
+> {% client.global.set("studentId", response.body.student.id); %}
+
+### 7. PIN 을 비워 두면 서버가 만들어 줍니다
+POST {{host}}/api/students
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{ "name": "박서윤", "grade": 2 }
+
+### 8. 학생 목록
+GET {{host}}/api/students
+Authorization: Bearer {{token}}
+
+### 9. 학생 로그인 — 아이 폰에서 하는 것
+POST {{host}}/api/auth/student/login
+Content-Type: application/json
+
+{
+  "academyCode": "{{academyCode}}",
+  "name": "김민우",
+  "pin": "1234"
+}
+
+> {% client.global.set("studentToken", response.body.token); %}
+
+### 10. 학생 토큰으로 내 정보
+GET {{host}}/api/auth/me
+Authorization: Bearer {{studentToken}}
+
+### 11. 학생 토큰으로 관리 API — 403 이어야 정상입니다
+GET {{host}}/api/students
+Authorization: Bearer {{studentToken}}
+
+### 12. PIN 다시 발급 (아이가 잊었을 때)
+PATCH {{host}}/api/students/{{studentId}}/pin
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{ "pin": "5678" }
+
+### 13. 강사 계정 만들기 — 원장만 됩니다
+POST {{host}}/api/academy/teachers
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{ "email": "teacher@example.com", "password": "password123", "name": "박선생" }
+
+### 14. 강사 목록
+GET {{host}}/api/academy/teachers
+Authorization: Bearer {{token}}
+
+### 15. 학년별로 낼 수 있는 유형 — 초1 에는 나눗셈이 없습니다
+GET {{host}}/api/worksheets/options?grade=3
+Authorization: Bearer {{token}}
+
+### 16. 학습지 만들기 — 문장·식·정답이 함께 나옵니다
+POST {{host}}/api/worksheets
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "grade": 3,
+  "categories": ["MERGE", "INCREASE", "DECREASE", "COMPARE"],
+  "count": 10,
+  "carry": true
+}
+
+> {%
+    client.global.set("sheetCode", response.body.code);
+    client.log("학습지 코드: " + response.body.code);
+    client.log(response.body.problems[0].plainSentence);
+%}
+
+### 17. 같은 코드로 다시 — 16번과 완전히 같은 문제가 나옵니다
+POST {{host}}/api/worksheets
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "grade": 3,
+  "categories": ["MERGE", "INCREASE", "DECREASE", "COMPARE"],
+  "count": 10,
+  "carry": true,
+  "code": "{{sheetCode}}"
+}
+
+### 18. 받아올림 없는 쉬운 문제만
+POST {{host}}/api/worksheets
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{ "grade": 2, "categories": ["MERGE", "INCREASE"], "count": 5, "carry": false }
+
+### 19. 초6 큰 수 — 학년에 안 맞는 문장은 안 나옵니다
+POST {{host}}/api/worksheets
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{ "grade": 6, "categories": ["MERGE", "DECREASE", "COMPARE", "GROUP", "SHARE"], "count": 8 }
+
+### 20. 초1 에 나눗셈만 고르면 — 400 이어야 정상입니다
+POST {{host}}/api/worksheets
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{ "grade": 1, "categories": ["SHARE"], "count": 5 }
+
+### ─────────── 과제와 채점 ───────────
+
+### 21. 과제 내주기 (김민우에게)
+POST {{host}}/api/assignments
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "title": "3학년 덧뺄셈 숙제",
+  "grade": 3,
+  "categories": ["MERGE", "DECREASE"],
+  "count": 3,
+  "carry": true,
+  "sameForEveryone": true,
+  "studentIds": [{{studentId}}]
+}
+
+> {%
+    client.global.set("assignmentId", response.body.assignment.id);
+    client.global.set("assignmentCode", response.body.assignment.code);
+%}
+
+### 22. 정답 확인용 — 같은 코드로 학습지를 뽑으면 답이 보입니다 (선생님만)
+POST {{host}}/api/worksheets
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "grade": 3, "categories": ["MERGE", "DECREASE"], "count": 3,
+  "carry": true, "code": "{{assignmentCode}}"
+}
+
+### 23. 학생 로그인
+POST {{host}}/api/auth/student/login
+Content-Type: application/json
+
+{ "academyCode": "{{academyCode}}", "name": "김민우", "pin": "5678" }
+
+> {% client.global.set("studentToken", response.body.token); %}
+
+### 24. 내 과제 목록
+GET {{host}}/api/my/assignments
+Authorization: Bearer {{studentToken}}
+
+> {% client.global.set("myAssignmentId", response.body[0].id); %}
+
+### 25. 문제 열기 — answer / cues / operation 이 없는지 확인해 보세요
+GET {{host}}/api/my/assignments/{{myAssignmentId}}
+Authorization: Bearer {{studentToken}}
+
+### 26. 1단계: 단서 찾기 (22번에서 본 cues 중 하나)
+POST {{host}}/api/my/assignments/{{myAssignmentId}}/answers
+Content-Type: application/json
+Authorization: Bearer {{studentToken}}
+
+{ "problemNo": 1, "step": "CUE", "value": "모두" }
+
+### 27. 2단계: 연산 고르기
+POST {{host}}/api/my/assignments/{{myAssignmentId}}/answers
+Content-Type: application/json
+Authorization: Bearer {{studentToken}}
+
+{ "problemNo": 1, "step": "OPERATION", "value": "+" }
+
+### 28. 3단계: 식 세우기 (22번의 numbers 를 넣으세요)
+POST {{host}}/api/my/assignments/{{myAssignmentId}}/answers
+Content-Type: application/json
+Authorization: Bearer {{studentToken}}
+
+{ "problemNo": 1, "step": "EXPRESSION", "numbers": [100, 200] }
+
+### 29. 4단계: 답
+POST {{host}}/api/my/assignments/{{myAssignmentId}}/answers
+Content-Type: application/json
+Authorization: Bearer {{studentToken}}
+
+{ "problemNo": 1, "step": "ANSWER", "value": "300" }
+
+### 30. 단계 건너뛰기 — 409 여야 정상입니다
+POST {{host}}/api/my/assignments/{{myAssignmentId}}/answers
+Content-Type: application/json
+Authorization: Bearer {{studentToken}}
+
+{ "problemNo": 2, "step": "ANSWER", "value": "999" }
+
+### 31. 선생님: 누가 어디까지 풀었는지
+GET {{host}}/api/assignments/{{assignmentId}}
+Authorization: Bearer {{token}}
+
+### 32. 선생님: 단계별·유형별 리포트
+GET {{host}}/api/assignments/{{assignmentId}}/report
+Authorization: Bearer {{token}}
+
+### 33. 과제 마감
+PATCH {{host}}/api/assignments/{{assignmentId}}/closed
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{ "closed": true }

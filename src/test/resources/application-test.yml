@@ -1,0 +1,16 @@
+# 테스트용 덮어쓰기. application.yml 위에 얹히므로 여기에는 '다른 것'만 적는다.
+spring:
+  datasource:
+    url: jdbc:h2:mem:test;MODE=PostgreSQL;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  h2:
+    console:
+      enabled: false
+
+app:
+  jwt:
+    secret: test-secret-that-is-long-enough-for-hmac-sha-256-ok
+    teacher-ttl: PT1H
+    student-ttl: PT24H

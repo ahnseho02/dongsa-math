@@ -1,0 +1,13 @@
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+data/
+
+# 비밀값은 저장소에 올리지 않는다 (.env.example 만 올린다)
+.env
+.env.local
+*.log
+.idea/
+*.iml
+out/
+.DS_Store

@@ -1,0 +1,9 @@
+.git
+.gradle
+build
+data
+.idea
+*.iml
+out
+README.md
+api.http

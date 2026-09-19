@@ -1,0 +1,1036 @@
+<title>동사로 푸는 수학</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@400;700;900&family=IBM+Plex+Sans+KR:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+:root{
+  --paper:#F3F4FA; --card:#FFFFFF; --card2:#F8F9FD;
+  --ink:#1B2140; --ink2:#575D7E; --ink3:#888DA8;
+  --line:#DEE0EE; --chip:#EAECF6;
+  --accent:#C97A06; --accent2:#EFA01E; --accent-soft:#FCF0DA; --accent-line:#EBD3A4;
+  --good:#0D7F66; --good-soft:#E1F2ED; --good-line:#A9D9CB;
+  --bad:#C03C2B; --bad-soft:#FAE5E1; --bad-line:#EEBCB2;
+  --shadow:0 1px 2px rgba(27,33,64,.05),0 10px 26px rgba(27,33,64,.07);
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#101228; --card:#1A1D36; --card2:#212445;
+  --ink:#EAEBF5; --ink2:#A2A7C4; --ink3:#7C819F;
+  --line:#2D3156; --chip:#262A4A;
+  --accent:#F0A62C; --accent2:#F7BC53; --accent-soft:#38290E; --accent-line:#5A4419;
+  --good:#3FC9A0; --good-soft:#12332A; --good-line:#1E5647;
+  --bad:#F47963; --bad-soft:#3B1A15; --bad-line:#5E2A22;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 26px rgba(0,0,0,.35);
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --paper:#101228; --card:#1A1D36; --card2:#212445;
+  --ink:#EAEBF5; --ink2:#A2A7C4; --ink3:#7C819F;
+  --line:#2D3156; --chip:#262A4A;
+  --accent:#F0A62C; --accent2:#F7BC53; --accent-soft:#38290E; --accent-line:#5A4419;
+  --good:#3FC9A0; --good-soft:#12332A; --good-line:#1E5647;
+  --bad:#F47963; --bad-soft:#3B1A15; --bad-line:#5E2A22;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 26px rgba(0,0,0,.35);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:"IBM Plex Sans KR",system-ui,-apple-system,sans-serif;font-size:15px;line-height:1.7;
+  -webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}
+button{font:inherit;color:inherit;cursor:pointer}
+h1,h2,h3{font-family:"Gothic A1","IBM Plex Sans KR",sans-serif;margin:0;text-wrap:balance;letter-spacing:-.02em}
+.mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+
+.app{max-width:480px;margin:0 auto;padding-inline:16px;padding-block:0 132px;min-height:100%}
+.topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--paper);
+  padding-block:14px 10px;display:flex;align-items:center;gap:10px;border-bottom:1px solid transparent}
+.topbar.stuck{border-bottom-color:var(--line)}
+.brand{font-family:"Gothic A1",sans-serif;font-weight:900;font-size:16px;letter-spacing:-.03em;flex:1}
+.brand span{color:var(--accent)}
+.tag{font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--ink3);
+  border:1px solid var(--line);border-radius:999px;padding:2px 9px;white-space:nowrap}
+
+.dock{position:fixed;left:0;right:0;bottom:0;z-index:10;
+  padding:14px 16px calc(14px + env(safe-area-inset-bottom,0px));
+  background:linear-gradient(to top,var(--paper) 62%,color-mix(in srgb,var(--paper) 0%,transparent))}
+.dock-in{max-width:480px;margin:0 auto;padding-inline:0}
+.btn{display:block;width:100%;border:0;border-radius:14px;padding:15px 18px;
+  font-family:"Gothic A1",sans-serif;font-weight:900;font-size:16px;letter-spacing:-.02em;
+  background:var(--ink);color:var(--paper);box-shadow:var(--shadow);transition:transform .08s ease}
+.btn:active{transform:translateY(1px)}
+.btn[disabled]{opacity:.38;cursor:not-allowed}
+.btn.ghost{background:var(--card);color:var(--ink);border:1px solid var(--line);box-shadow:none}
+.btn.ok{background:var(--good);color:#fff}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+.lead{font-size:13.5px;color:var(--ink2);line-height:1.75}
+.eyebrow{font-family:"Gothic A1",sans-serif;font-size:11px;font-weight:700;letter-spacing:.14em;
+  color:var(--ink3);text-transform:uppercase}
+.sec{margin-block:26px}
+.sec>.eyebrow{margin-bottom:9px;display:block}
+.hint{font-size:12.5px;color:var(--ink3);margin-top:8px;line-height:1.6}
+
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1px solid var(--line);background:var(--card);border-radius:11px;
+  padding:9px 13px;font-size:13.5px;font-weight:500;transition:background .12s,border-color .12s}
+.chip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent-line);
+  color:var(--accent);font-weight:600}
+.chip[disabled]{opacity:.35}
+.chip .op{font-family:"IBM Plex Mono",monospace;color:var(--ink3);margin-left:5px;font-size:12px}
+.chip[aria-pressed="true"] .op{color:var(--accent)}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:var(--shadow)}
+.flat{background:var(--card2);border:1px solid var(--line);border-radius:13px;padding:14px}
+
+/* 문제 카드 */
+.qmeta{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.qnum{font-family:"Gothic A1",sans-serif;font-weight:900;font-size:13px;color:var(--accent)}
+.qcat{font-size:11.5px;color:var(--ink3);border-left:1px solid var(--line);padding-left:8px}
+.qtext{font-size:16.5px;line-height:2.05;letter-spacing:-.01em}
+.tap{display:inline;border:0;background:none;padding:0 1px;margin:0;
+  font:inherit;color:inherit;border-bottom:2px dotted var(--accent2);border-radius:2px}
+.tap:hover{background:var(--accent-soft)}
+.tap[data-state="pick"]{background:var(--accent-soft);border-bottom-style:solid;font-weight:600}
+.tap[data-state="right"]{background:var(--good-soft);border-bottom-color:var(--good);color:var(--good);font-weight:600}
+.tap[data-state="wrong"]{background:var(--bad-soft);border-bottom-color:var(--bad);color:var(--bad);font-weight:600}
+.tap[disabled]{cursor:default}
+.qtext.locked .tap{border-bottom-color:var(--line)}
+
+/* 단계 진행 */
+.steps{display:flex;gap:6px;margin-block:16px 14px}
+.stepdot{flex:1;text-align:center;font-size:11px;font-weight:600;color:var(--ink3);
+  padding:6px 2px 7px;border-top:3px solid var(--line);letter-spacing:-.01em}
+.stepdot[data-on="now"]{color:var(--accent);border-top-color:var(--accent2)}
+.stepdot[data-on="ok"]{color:var(--good);border-top-color:var(--good)}
+.stepdot[data-on="no"]{color:var(--bad);border-top-color:var(--bad)}
+
+.ask{font-family:"Gothic A1",sans-serif;font-weight:700;font-size:15px;margin-block:20px 12px;
+  display:flex;align-items:center;gap:7px}
+.ask i{font-style:normal;width:20px;height:20px;border-radius:6px;background:var(--ink);color:var(--paper);
+  font-size:11px;font-weight:900;display:grid;place-items:center;flex:none}
+
+.ops{display:grid;grid-template-columns:repeat(auto-fit,minmax(64px,1fr));gap:9px}
+.op-btn{border:1px solid var(--line);background:var(--card);border-radius:13px;padding:16px 0;
+  font-family:"IBM Plex Mono",monospace;font-size:24px;font-weight:600}
+.op-btn[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent-line);color:var(--accent)}
+
+/* 식 세우기 */
+.expr{display:flex;align-items:center;justify-content:center;gap:9px;flex-wrap:wrap;
+  padding:18px 10px;background:var(--card2);border:1px solid var(--line);border-radius:13px}
+.blank{min-width:74px;height:50px;border:2px dashed var(--line);border-radius:11px;background:var(--card);
+  font-family:"IBM Plex Mono",monospace;font-size:19px;font-weight:600;font-variant-numeric:tabular-nums;
+  display:grid;place-items:center;padding-inline:10px}
+.blank.filled{border-style:solid;border-color:var(--accent-line);background:var(--accent-soft);color:var(--accent)}
+.sign{font-family:"IBM Plex Mono",monospace;font-size:21px;font-weight:600;color:var(--ink2)}
+.bank{display:flex;flex-wrap:wrap;gap:9px;justify-content:center;margin-top:13px}
+.numchip{border:1px solid var(--line);background:var(--card);border-radius:11px;padding:11px 17px;
+  font-family:"IBM Plex Mono",monospace;font-size:17px;font-weight:600;font-variant-numeric:tabular-nums}
+.numchip[data-used="1"]{opacity:.25;pointer-events:none}
+
+/* 숫자판 */
+.pad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:13px}
+.key{border:1px solid var(--line);background:var(--card);border-radius:12px;padding:15px 0;
+  font-family:"IBM Plex Mono",monospace;font-size:20px;font-weight:600}
+.key.fn{font-family:"Gothic A1",sans-serif;font-size:14px;font-weight:700;color:var(--ink2)}
+.ansbox{display:flex;align-items:baseline;justify-content:center;gap:6px;
+  padding:20px 12px;background:var(--card2);border:1px solid var(--line);border-radius:13px}
+.ansval{font-family:"IBM Plex Mono",monospace;font-size:30px;font-weight:600;font-variant-numeric:tabular-nums;
+  min-width:50px;text-align:right}
+.ansval:empty::before{content:"?";color:var(--ink3)}
+.ansunit{font-size:15px;color:var(--ink2)}
+
+/* 피드백 */
+.fb{border-radius:13px;padding:13px 15px;margin-top:14px;display:flex;gap:11px;align-items:flex-start;
+  font-size:13.5px;line-height:1.6}
+.fb.y{background:var(--good-soft);border:1px solid var(--good-line);color:var(--good)}
+.fb.n{background:var(--bad-soft);border:1px solid var(--bad-line);color:var(--bad)}
+.fb b{font-family:"Gothic A1",sans-serif;font-weight:900;font-size:14px;display:block;margin-bottom:1px}
+.fb .mk{font-size:17px;line-height:1.3;flex:none}
+
+/* 결과 */
+.score{text-align:center;padding-block:22px 6px}
+.score .big{font-family:"Gothic A1",sans-serif;font-weight:900;font-size:54px;line-height:1;
+  letter-spacing:-.04em;color:var(--accent)}
+.score .sub{font-size:13px;color:var(--ink2);margin-top:6px}
+.bars{display:flex;flex-direction:column;gap:11px}
+.bar-row{display:grid;grid-template-columns:62px 1fr 42px;align-items:center;gap:10px;font-size:13px}
+.bar-track{height:9px;border-radius:99px;background:var(--chip);overflow:hidden}
+.bar-fill{height:100%;border-radius:99px;background:var(--accent2)}
+.bar-fill.low{background:var(--bad)}
+.bar-fill.high{background:var(--good)}
+.bar-pct{text-align:right;font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--ink2);
+  font-variant-numeric:tabular-nums}
+.qlist{display:flex;flex-direction:column;gap:9px}
+.qrow{display:grid;grid-template-columns:18px 1fr auto auto;gap:8px;align-items:center;
+  padding:11px 13px;background:var(--card);border:1px solid var(--line);border-radius:12px;font-size:13px}
+.qrow .i{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink3)}
+.qrow .t{color:var(--ink2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12.5px}
+.marks{display:flex;gap:3px;flex:none}
+.mark{width:17px;height:17px;border-radius:5px;display:grid;place-items:center;font-size:10px;font-weight:700}
+.mark.y{background:var(--good-soft);color:var(--good)}
+.mark.n{background:var(--bad-soft);color:var(--bad)}
+.codebox{display:flex;align-items:center;justify-content:space-between;gap:10px;
+  background:var(--card2);border:1px dashed var(--line);border-radius:12px;padding:13px 15px}
+.codebox .c{font-family:"IBM Plex Mono",monospace;font-size:17px;font-weight:600;letter-spacing:.1em;color:var(--accent)}
+.note{font-size:12.5px;color:var(--ink3);line-height:1.65}
+.input{width:100%;border:1px solid var(--line);background:var(--card);border-radius:11px;
+  padding:11px 13px;font-family:"IBM Plex Mono",monospace;font-size:15px;letter-spacing:.1em;
+  color:var(--ink);text-transform:uppercase}
+.input::placeholder{color:var(--ink3);letter-spacing:0;font-family:"IBM Plex Sans KR",sans-serif}
+.demo{border:1px dashed var(--accent-line);background:var(--accent-soft);border-radius:14px;padding:16px}
+.demo .eyebrow{color:var(--accent)}
+table.mini{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:10px}
+table.mini th{text-align:left;font-weight:600;color:var(--ink3);font-size:11px;padding-bottom:6px}
+table.mini td{padding:7px 0;border-top:1px solid var(--accent-line);font-variant-numeric:tabular-nums}
+table.mini td:last-child,table.mini th:last-child{text-align:right}
+:focus-visible{outline:2px solid var(--accent2);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+/* 해설 영상 */
+.vid-empty{border:1px dashed var(--line);border-radius:14px;padding:24px 18px;text-align:center;
+  background:var(--card2);color:var(--ink3);font-size:13px;line-height:1.7}
+.chap{display:grid;grid-template-columns:auto 1fr auto auto;gap:10px;align-items:center;
+  background:var(--card);border:1px solid var(--line);border-radius:12px;padding:11px 13px;margin-bottom:8px}
+.chap .t{font-family:"IBM Plex Mono",monospace;font-size:13px;font-weight:600;color:var(--accent);
+  font-variant-numeric:tabular-nums}
+.chap .n{font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.45}
+.chap .n small{display:block;font-size:11px;color:var(--ink3)}
+.chap .x{border:0;background:none;color:var(--ink3);font-size:15px;padding:0 2px;line-height:1}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:11px}
+.field label{font-size:12px;font-weight:600;color:var(--ink2)}
+.field .input{letter-spacing:0;text-transform:none;font-family:"IBM Plex Sans KR",sans-serif;font-size:14px}
+.field .input.tm{font-family:"IBM Plex Mono",monospace;letter-spacing:.04em}
+.frow{display:grid;grid-template-columns:104px 1fr;gap:10px}
+.select{width:100%;border:1px solid var(--line);background:var(--card);border-radius:11px;
+  padding:11px 13px;font:inherit;font-size:14px;color:var(--ink)}
+.play{display:inline-flex;align-items:center;gap:4px;text-decoration:none;
+  background:var(--accent-soft);border:1px solid var(--accent-line);color:var(--accent);
+  border-radius:9px;padding:5px 9px;font-size:11.5px;font-weight:600;white-space:nowrap;
+  font-variant-numeric:tabular-nums}
+.play[data-off="1"]{background:var(--chip);border-color:var(--line);color:var(--ink3);pointer-events:none}
+.play.wide{padding:9px 14px;font-size:13px;margin-top:10px}
+.linkbtn{background:none;border:0;color:var(--accent);font-size:13.5px;font-weight:600;padding:0;
+  text-decoration:underline;text-underline-offset:3px;text-align:left}
+</style>
+
+<div class="app">
+  <div class="topbar" id="topbar">
+    <div class="brand">동사로 푸는 <span>수학</span></div>
+    <div class="tag" id="tag">프로토타입</div>
+  </div>
+
+  <!-- ───────── 홈 ───────── -->
+  <section id="scr-home">
+    <div class="sec" style="margin-top:8px">
+      <h1 style="font-size:23px;font-weight:900;line-height:1.45">문장 속 단어를 찾으면<br>연산이 보입니다</h1>
+      <p class="lead" style="margin-top:10px">
+        아이들이 문장제를 틀리는 건 계산을 못해서가 아니라 <b>어떤 식을 세울지 몰라서</b>입니다.
+        이 연습은 답을 바로 묻지 않고 <b>단서 찾기 → 연산 → 식 → 답</b> 네 단계로 나눠서 물어봅니다.
+        어느 단계에서 막히는지가 그대로 기록됩니다.
+      </p>
+    </div>
+
+    <div class="sec">
+      <span class="eyebrow">학년</span>
+      <div class="chips" id="gradeChips"></div>
+      <p class="hint" id="gradeHint"></p>
+    </div>
+
+    <div class="sec">
+      <span class="eyebrow">문제 유형</span>
+      <div class="chips" id="catChips"></div>
+    </div>
+
+    <div class="sec">
+      <span class="eyebrow">문항 수</span>
+      <div class="chips" id="countChips"></div>
+    </div>
+
+    <div class="sec">
+      <span class="eyebrow">받아올림 · 받아내림</span>
+      <div class="chips" id="carryChips"></div>
+      <p class="hint">'없음'으로 두면 자릿수를 넘지 않는 쉬운 숫자만 나옵니다.</p>
+    </div>
+
+    <div class="sec">
+      <span class="eyebrow">학습지 코드 (선택)</span>
+      <input class="input" id="codeIn" placeholder="예: K7M2QP — 비워 두면 새로 뽑습니다" maxlength="6" autocomplete="off">
+      <p class="hint">같은 코드에 같은 설정을 넣으면 <b>똑같은 문제</b>가 다시 나옵니다. 같은 시험지를 반 전체에 돌릴 때 씁니다.</p>
+    </div>
+
+    <div class="sec">
+      <span class="eyebrow">선생님용</span>
+      <button class="linkbtn" id="toVideo">수업 영상 구간 나누기 →</button>
+      <p class="hint" id="vsum"></p>
+    </div>
+  </section>
+
+  <!-- ───────── 해설 영상 구간 ───────── -->
+  <section id="scr-video" hidden>
+    <div class="sec" style="margin-top:8px">
+      <h1 style="font-size:20px;font-weight:900;line-height:1.45">수업 영상을 구간으로 나누기</h1>
+      <p class="lead" style="margin-top:9px">
+        수업 영상을 유튜브에 <b>'일부 공개'</b>로 올리고 주소를 붙여넣으세요.
+        구간을 나눠 두면 아이가 <b>틀린 문제에서 바로 그 구간</b>으로 넘어갑니다.
+        1시간짜리 영상에서 필요한 3분을 찾아 헤맬 일이 없습니다.
+      </p>
+    </div>
+
+    <div class="sec">
+      <span class="eyebrow">영상 주소</span>
+      <div class="field">
+        <input class="input" id="vurl" placeholder="https://youtu.be/... 를 붙여넣으세요" autocomplete="off" spellcheck="false">
+      </div>
+      <p class="hint" id="vstat"></p>
+    </div>
+
+    <div class="sec">
+      <span class="eyebrow">구간 추가</span>
+      <div class="frow">
+        <div class="field"><label for="vtime">시작 시각</label>
+          <input class="input tm" id="vtime" placeholder="4:20" autocomplete="off"></div>
+        <div class="field"><label for="vtitle">구간 이름</label>
+          <input class="input" id="vtitle" placeholder="'모두'가 나오면 덧셈" autocomplete="off"></div>
+      </div>
+      <div class="field"><label for="vcat">연결할 문제 유형</label>
+        <select class="select" id="vcat"></select></div>
+      <button class="btn ghost" id="vadd">구간 추가</button>
+      <p class="hint" id="vmsg"></p>
+    </div>
+
+    <div class="sec">
+      <span class="eyebrow">등록된 구간</span>
+      <div id="vlist"></div>
+    </div>
+  </section>
+
+  <!-- ───────── 풀이 ───────── -->
+  <section id="scr-solve" hidden>
+    <div class="steps" id="steps"></div>
+    <div class="card">
+      <div class="qmeta"><span class="qnum" id="qnum"></span><span class="qcat" id="qcat"></span></div>
+      <div class="qtext" id="qtext"></div>
+    </div>
+    <div id="stage"></div>
+    <div id="fb"></div>
+  </section>
+
+  <!-- ───────── 결과 ───────── -->
+  <section id="scr-result" hidden>
+    <div class="score">
+      <div class="big" id="rScore"></div>
+      <div class="sub" id="rSub"></div>
+    </div>
+    <div class="sec">
+      <span class="eyebrow">단계별 정답률</span>
+      <div class="bars" id="rSteps"></div>
+      <p class="hint" id="rDiag"></p>
+    </div>
+    <div class="sec">
+      <span class="eyebrow">유형별 정답률</span>
+      <div class="bars" id="rCats"></div>
+      <div id="rWatch"></div>
+    </div>
+    <div class="sec">
+      <span class="eyebrow">문제별 기록</span>
+      <div class="qlist" id="rList"></div>
+      <p class="hint">칸 네 개는 왼쪽부터 단서 · 연산 · 식 · 답입니다.</p>
+    </div>
+    <div class="sec">
+      <span class="eyebrow">학습지 코드</span>
+      <div class="codebox"><span class="note">이 학습지를 다시 뽑으려면</span><span class="c" id="rCode"></span></div>
+    </div>
+    <div class="sec">
+      <div class="demo">
+        <span class="eyebrow">선생님 화면은 이렇게 (예시 데이터)</span>
+        <p class="note" style="margin:8px 0 0">반 전체를 모아 보면 어느 단계에서 막히는지가 보입니다.</p>
+        <table class="mini">
+          <tr><th>학생</th><th>단서</th><th>연산</th><th>식</th><th>답</th></tr>
+          <tr><td>김○우</td><td>90%</td><td>80%</td><td>70%</td><td>95%</td></tr>
+          <tr><td>박○윤</td><td>50%</td><td>45%</td><td>40%</td><td>90%</td></tr>
+          <tr><td>이○준</td><td>85%</td><td>85%</td><td>80%</td><td>60%</td></tr>
+        </table>
+        <p class="note" style="margin-top:12px">
+          박○윤은 계산은 되는데 <b>문장 해석</b>에서 막힙니다. 이○준은 반대로 <b>계산 연습</b>이 필요합니다.
+          같은 60점이어도 처방이 다릅니다 — 이 표가 이 앱의 핵심입니다.
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="dock"><div class="dock-in" id="dock"></div></div>
+
+<script>
+"use strict";
+
+/* ══════════ 1. 한국어 조사 처리 ══════════ */
+// 0 영, 1 일, 2 이, 3 삼, 4 사, 5 오, 6 육, 7 칠, 8 팔, 9 구
+const DIGIT_JONG = [1, 8, 0, 1, 0, 0, 1, 8, 8, 0]; // 0=없음, 8=ㄹ, 1=그 외 받침
+function jongseong(str){
+  const s = String(str).trim();
+  if(!s) return 0;
+  const c = s.charCodeAt(s.length - 1);
+  if(c >= 0xAC00 && c <= 0xD7A3) return (c - 0xAC00) % 28;
+  if(c >= 48 && c <= 57) return DIGIT_JONG[c - 48];
+  return 0;
+}
+function josa(prev, withJong, withoutJong){
+  const j = jongseong(prev);
+  if(withJong === "으로") return (j === 0 || j === 8) ? "로" : "으로";
+  return j ? withJong : withoutJong;
+}
+
+/* ══════════ 2. 시드 난수 ══════════ */
+function mulberry32(a){
+  return function(){
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    let t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+const ALPHA = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // 헷갈리는 I,O,0,1 제외
+function seedToCode(seed){
+  let s = seed >>> 0, out = "";
+  for(let i = 0; i < 6; i++){ out = ALPHA[s % 32] + out; s = Math.floor(s / 32); }
+  return out;
+}
+function codeToSeed(code){
+  let s = 0;
+  for(const ch of code.toUpperCase()){
+    const i = ALPHA.indexOf(ch);
+    if(i < 0) return null;
+    s = s * 32 + i;
+  }
+  return s >>> 0;
+}
+
+/* ══════════ 3. 제약 조건 기반 숫자 생성 ══════════ */
+function hasCarry(nums){
+  const cp = nums.slice();
+  while(cp.some(n => n > 0)){
+    let sum = 0;
+    for(let i = 0; i < cp.length; i++){ sum += cp[i] % 10; cp[i] = Math.floor(cp[i] / 10); }
+    if(sum >= 10) return true;
+  }
+  return false;
+}
+function hasBorrow(a, b){
+  while(b > 0){
+    if(a % 10 < b % 10) return true;
+    a = Math.floor(a / 10); b = Math.floor(b / 10);
+  }
+  return false;
+}
+function makeR(rnd){
+  const int = (lo, hi) => lo + Math.floor(rnd() * (hi - lo + 1));
+  const R = {
+    rnd, int,
+    pick: arr => arr[Math.floor(rnd() * arr.length)],
+    // 덧셈 두 수: 받아올림 유무를 맞출 때까지 다시 뽑는다
+    addPair(g){
+      let last;
+      for(let i = 0; i < 400; i++){
+        const a = int(g.lo, g.hi), b = int(g.lo, g.hi);
+        last = {a, b};
+        if(hasCarry([a, b]) === g.carry) return last;
+      }
+      return last;
+    },
+    // 비교형: 차이값(b)은 작게
+    addSmall(g){
+      const hi2 = Math.max(2, Math.floor(g.hi / 5)), lo2 = Math.max(2, Math.floor(hi2 / 5));
+      let last;
+      for(let i = 0; i < 400; i++){
+        const a = int(g.lo, g.hi), b = int(lo2, hi2);
+        last = {a, b};
+        if(hasCarry([a, b]) === g.carry) return last;
+      }
+      return last;
+    },
+    // 뺄셈 두 수: a > b 보장 + 받아내림 유무
+    subPair(g){
+      let last;
+      for(let i = 0; i < 400; i++){
+        const a = int(g.lo + 1, g.hi), b = int(g.lo, a - 1);
+        if(a - b < 1) continue;
+        last = {a, b};
+        if(hasBorrow(a, b) === g.carry) return last;
+      }
+      return last || {a: g.hi, b: g.lo};
+    },
+    addTriple(g){
+      let last;
+      for(let i = 0; i < 400; i++){
+        const a = int(g.lo, g.hi), b = int(g.lo, g.hi), c = int(g.lo, g.hi);
+        last = {a, b, c};
+        if(hasCarry([a, b, c]) === g.carry) return last;
+      }
+      return last;
+    },
+    mulPair(g){
+      const hiA = g.grade <= 2 ? 9 : (g.grade <= 4 ? 19 : 99);
+      return {a: int(2, hiA), b: int(2, 9)};
+    },
+    divPair(g){
+      const b = int(2, 9), q = int(2, g.grade <= 3 ? 12 : 25);
+      return {a: b * q, b};
+    }
+  };
+  return R;
+}
+
+/* ══════════ 4. 문제 템플릿 ══════════ */
+// «단어» = 탭할 수 있는 후보,  {a} = 숫자 슬롯,  {은/는} = 조사 자동 처리
+const CATS = {
+  merge:   {label: "합치기",      op: "+", minGrade: 1},
+  add:     {label: "늘어나기",    op: "+", minGrade: 1},
+  sub:     {label: "줄어들기",    op: "−", minGrade: 1},
+  compare: {label: "비교하기",    op: "±", minGrade: 2},
+  multi:   {label: "여러 수",     op: "+", minGrade: 2},
+  mul:     {label: "묶어 세기",   op: "×", minGrade: 2},
+  div:     {label: "똑같이 나누기", op: "÷", minGrade: 3}
+};
+const NAMES = ["민우","지혜","서윤","준호","은수","하린","도윤","채원","시우","예은","태린","건우"];
+
+const TPL = [
+{id:"m1", cat:"merge", op:"+", unit:"쪽", maxG:3, cue:["모두"],
+ text:"{name}{은/는} 어제 동화책을 {a}쪽 «읽었고», 오늘은 {b}쪽을 읽었습니다. {name}{이/가} «이틀 동안» 읽은 동화책은 «모두» 몇 쪽입니까?",
+ gen:(R,g)=>R.addPair(g), nums:v=>[v.a,v.b], ans:v=>v.a+v.b},
+{id:"m2", cat:"merge", op:"+", unit:"권", maxG:4, cue:["합하면","모두"],
+ text:"도서관에 위인전이 {a}권, 과학책이 {b}권 «있습니다». 위인전과 과학책을 «합하면» «모두» 몇 권입니까?",
+ gen:(R,g)=>R.addPair(g), nums:v=>[v.a,v.b], ans:v=>v.a+v.b},
+{id:"m3", cat:"merge", op:"+", unit:"마리", maxG:3, cue:["모두"],
+ text:"«농장에서» 오리를 {a}마리, 닭을 {b}마리 «기르고» 있습니다. 기르는 오리와 닭은 «모두» 몇 마리입니까?",
+ gen:(R,g)=>R.addPair(g), nums:v=>[v.a,v.b], ans:v=>v.a+v.b},
+{id:"m4", cat:"merge", op:"+", unit:"개", maxG:3, cue:["합치면","모두"],
+ text:"제과점에서 식빵을 {a}개, 단팥빵을 {b}개 «만들었습니다». 두 종류의 빵을 «합치면» «모두» 몇 개입니까?",
+ gen:(R,g)=>R.addPair(g), nums:v=>[v.a,v.b], ans:v=>v.a+v.b},
+{id:"m5", cat:"merge", op:"+", unit:"명", minG:4, cue:["모두"],
+ text:"극장에 1회 차 관객이 {a}명, 2회 차 관객이 {b}명 «들어왔습니다». 두 회 차의 «관객»은 «모두» 몇 명입니까?",
+ gen:(R,g)=>R.addPair(g), nums:v=>[v.a,v.b], ans:v=>v.a+v.b},
+
+{id:"a1", cat:"add", op:"+", unit:"명", maxG:2, cue:["더 탔습니다","모두"],
+ text:"버스에 승객이 {a}명 «타고 있었습니다». 다음 정류장에서 승객 {b}명이 «더 탔습니다». 지금 버스에 타고 있는 승객은 «모두» 몇 명입니까?",
+ gen:(R,g)=>R.addPair(g), nums:v=>[v.a,v.b], ans:v=>v.a+v.b},
+{id:"a2", cat:"add", op:"+", unit:"장", maxG:4, cue:["더 받았습니다","모두"],
+ text:"{name}{은/는} 우표를 {a}장 «가지고 있었습니다». 삼촌에게서 우표 {b}장을 «더 받았습니다». {name}{이/가} 가지게 된 우표는 «모두» 몇 장입니까?",
+ gen:(R,g)=>R.addPair(g), nums:v=>[v.a,v.b], ans:v=>v.a+v.b},
+{id:"a3", cat:"add", op:"+", unit:"마리", maxG:3, cue:["더 넣었습니다","모두"],
+ text:"수족관에 물고기가 {a}마리 «살고 있었습니다». 오늘 새 물고기 {b}마리를 «더 넣었습니다». 지금 수족관의 물고기는 «모두» 몇 마리입니까?",
+ gen:(R,g)=>R.addPair(g), nums:v=>[v.a,v.b], ans:v=>v.a+v.b},
+{id:"a4", cat:"add", op:"+", unit:"마리", maxG:2, cue:["태어났습니다","모두"],
+ text:"농장에 토끼가 {a}마리 «있었습니다». 아기 토끼 {b}마리가 «태어났습니다». 농장의 토끼는 «모두» 몇 마리가 되었습니까?",
+ gen:(R,g)=>R.addPair(g), nums:v=>[v.a,v.b], ans:v=>v.a+v.b},
+{id:"a5", cat:"add", op:"+", unit:"명", minG:4, cue:["새로 가입했습니다","모두"],
+ text:"어느 누리집의 회원이 {a}명 «있었습니다». 오늘 {b}명이 «새로 가입했습니다». 전체 «회원»은 «모두» 몇 명입니까?",
+ gen:(R,g)=>R.addPair(g), nums:v=>[v.a,v.b], ans:v=>v.a+v.b},
+
+{id:"s1", cat:"sub", op:"−", unit:"개", maxG:3, cue:["나누어 주었습니다","남은"],
+ text:"{name}{은/는} 사탕을 {a}개 «가지고 있었습니다». 그중 {b}개를 친구에게 «나누어 주었습니다». {name}에게 «남은» 사탕은 몇 개입니까?",
+ gen:(R,g)=>R.subPair(g), nums:v=>[v.a,v.b], ans:v=>v.a-v.b},
+{id:"s2", cat:"sub", op:"−", unit:"개", maxG:4, cue:["팔렸습니다","남은"],
+ text:"과일 가게에 사과가 {a}개 «있었습니다». 오늘 그중 {b}개가 «팔렸습니다». 팔고 «남은» 사과는 몇 개입니까?",
+ gen:(R,g)=>R.subPair(g), nums:v=>[v.a,v.b], ans:v=>v.a-v.b},
+{id:"s3", cat:"sub", op:"−", unit:"cm", maxG:3, cue:["잘라 냈습니다","남은"],
+ text:"색 테이프 {a}cm 중에서 {b}cm를 «잘라 냈습니다». «남은» 색 테이프의 «길이»는 몇 cm입니까?",
+ gen:(R,g)=>R.subPair(g), nums:v=>[v.a,v.b], ans:v=>v.a-v.b},
+{id:"s4", cat:"sub", op:"−", unit:"원", minG:2, cue:["썼습니다","남은"],
+ text:"{name}{은/는} {a}원을 «가지고 있었습니다». 문구점에서 공책을 사고 {b}원을 «썼습니다». {name}에게 «남은» 돈은 얼마입니까?",
+ gen:(R,g)=>R.subPair(g), nums:v=>[v.a,v.b], ans:v=>v.a-v.b},
+{id:"s5", cat:"sub", op:"−", unit:"개", minG:4, cue:["실어 냈습니다","남은"],
+ text:"«공장에» 부품이 {a}개 있었습니다. 그중 {b}개를 «실어 냈습니다». 공장에 «남은» 부품은 몇 개입니까?",
+ gen:(R,g)=>R.subPair(g), nums:v=>[v.a,v.b], ans:v=>v.a-v.b},
+
+{id:"c1", cat:"compare", op:"+", unit:"권", maxG:3, cue:["더 많이"], two:true,
+ text:"{name}{은/는} 동화책을 {a}권 «가지고 있습니다». {name2}{은/는} {name}보다 {b}권 «더 많이» 가지고 있습니다. {name2}{이/가} 가진 동화책은 «모두» 몇 권입니까?",
+ gen:(R,g)=>R.addSmall(g), nums:v=>[v.a,v.b], ans:v=>v.a+v.b},
+{id:"c2", cat:"compare", op:"−", unit:"cm", maxG:3, cue:["차이"],
+ text:"빨간 끈은 {a}cm이고, 파란 끈은 {b}cm «입니다». «두 끈»의 길이의 «차이»는 몇 cm입니까?",
+ gen:(R,g)=>R.subPair(g), nums:v=>[v.a,v.b], ans:v=>v.a-v.b},
+{id:"c3", cat:"compare", op:"+", unit:"개", maxG:3, cue:["더 많이"], two:true,
+ text:"{name}{은/는} 줄넘기를 {a}개 «했습니다». {name2}{은/는} {name}보다 {b}개 «더 많이» 했습니다. {name2}{이/가} 한 줄넘기는 «몇 개»입니까?",
+ gen:(R,g)=>R.addSmall(g), nums:v=>[v.a,v.b], ans:v=>v.a+v.b},
+{id:"c4", cat:"compare", op:"+", unit:"km", minG:4, maxG:5, cue:["더 멀리"],
+ text:"첫째 날 비행기가 «날아간» 거리는 {a}km입니다. 둘째 날은 첫째 날보다 {b}km «더 멀리» 날아갔습니다. 둘째 날 날아간 «거리»는 몇 km입니까?",
+ gen:(R,g)=>R.addSmall(g), nums:v=>[v.a,v.b], ans:v=>v.a+v.b},
+{id:"c5", cat:"compare", op:"−", unit:"명", minG:4, cue:["차이"],
+ text:"가 마을의 인구는 {a}명이고, 나 마을의 인구는 {b}명 «입니다». «두 마을» 인구의 «차이»는 몇 명입니까?",
+ gen:(R,g)=>R.subPair(g), nums:v=>[v.a,v.b], ans:v=>v.a-v.b},
+
+{id:"t1", cat:"multi", op:"+", unit:"개", maxG:2, cue:["모두"],
+ text:"{name}{은/는} 사과를 {a}개, 배를 {b}개, 귤을 {c}개 «가지고 있습니다». {name}{이/가} 가진 «과일»은 «모두» 몇 개입니까?",
+ gen:(R,g)=>R.addTriple(g), nums:v=>[v.a,v.b,v.c], ans:v=>v.a+v.b+v.c},
+{id:"t2", cat:"multi", op:"+", unit:"개", maxG:3, cue:["모두"],
+ text:"가 상자에 공이 {a}개, 나 상자에 {b}개, 다 상자에 {c}개 «들어 있습니다». «세 상자»에 들어 있는 공은 «모두» 몇 개입니까?",
+ gen:(R,g)=>R.addTriple(g), nums:v=>[v.a,v.b,v.c], ans:v=>v.a+v.b+v.c},
+{id:"t3", cat:"multi", op:"+", unit:"kg", minG:4, cue:["모두"],
+ text:"창고에 쌀이 {a}kg, 보리가 {b}kg, 콩이 {c}kg «쌓여 있습니다». 창고에 있는 «곡식»은 «모두» 몇 kg입니까?",
+ gen:(R,g)=>R.addTriple(g), nums:v=>[v.a,v.b,v.c], ans:v=>v.a+v.b+v.c},
+
+{id:"x1", cat:"mul", op:"×", unit:"개", cue:["씩"],
+ text:"한 상자에 사탕이 {b}개«씩» 들어 있습니다. «이런 상자가» {a}상자 있습니다. 사탕은 «모두» 몇 개입니까?",
+ gen:(R,g)=>R.mulPair(g), nums:v=>[v.a,v.b], ans:v=>v.a*v.b},
+{id:"x2", cat:"mul", op:"×", unit:"개", cue:["씩"],
+ text:"한 줄에 의자가 {b}개«씩» 놓여 있습니다. 의자가 {a}«줄» 있다면 의자는 «모두» 몇 개입니까?",
+ gen:(R,g)=>R.mulPair(g), nums:v=>[v.a,v.b], ans:v=>v.a*v.b},
+{id:"x3", cat:"mul", op:"×", unit:"원", cue:["씩"],
+ text:"공책 한 권의 값은 {b}원«입니다». 공책 {a}권을 사려면 «모두» 얼마가 «필요합니까»?",
+ gen:(R,g)=>R.mulPair(g), nums:v=>[v.a,v.b], ans:v=>v.a*v.b, scale:100},
+
+{id:"d1", cat:"div", op:"÷", unit:"개", cue:["똑같이 나누어"], ordered:true,
+ text:"사탕 {a}개를 {b}명에게 «똑같이 나누어» 주려고 «합니다». 한 «명»이 몇 개씩 가지게 됩니까?",
+ gen:(R,g)=>R.divPair(g), nums:v=>[v.a,v.b], ans:v=>v.a/v.b},
+{id:"d2", cat:"div", op:"÷", unit:"묶음", cue:["똑같이 나누어"], ordered:true,
+ text:"색종이 {a}장을 한 묶음에 {b}장씩 «똑같이 나누어» «담으려고» 합니다. «몇 묶음»이 됩니까?",
+ gen:(R,g)=>R.divPair(g), nums:v=>[v.a,v.b], ans:v=>v.a/v.b}
+];
+// 학년에 어울리는 템플릿만 남긴다 (초6에 "색 테이프 41273cm"가 나오지 않도록)
+function poolFor(grade, cats){
+  return TPL.filter(t => cats.indexOf(t.cat) >= 0 && grade >= (t.minG || 1) && grade <= (t.maxG || 6));
+}
+function catsFor(grade){
+  return Object.keys(CATS).filter(k => grade >= CATS[k].minGrade && poolFor(grade, [k]).length > 0);
+}
+
+/* ══════════ 5. 렌더링 ══════════ */
+function fillSlots(text, v){
+  return text.replace(/\{(name2|name|[abc])\}/g, (m, k) => (k in v) ? String(v[k]) : m);
+}
+function resolveJosa(s){
+  const re = /\{([가-힣]+)\/([가-힣]+)\}/g;
+  let out = "", last = 0, m;
+  while((m = re.exec(s)) !== null){
+    out += s.slice(last, m.index);
+    const prev = out.replace(/[«»\s]/g, "").slice(-1);
+    out += josa(prev, m[1], m[2]);
+    last = m.index + m[0].length;
+  }
+  return out + s.slice(last);
+}
+function renderQuestion(tpl, v){ return resolveJosa(fillSlots(tpl.text, v)); }
+function questionHTML(sentence){
+  return sentence.split(/(«[^»]+»)/).map(part => {
+    if(part.startsWith("«")){
+      const w = part.slice(1, -1);
+      return '<button type="button" class="tap" data-w="' + w + '">' + w + "</button>";
+    }
+    return part;
+  }).join("");
+}
+const plain = s => s.replace(/[«»]/g, "");
+
+/* ══════════ 6. 학습지 생성 ══════════ */
+const GRADES = {
+  1: {lo: 2,     hi: 9,     desc: "한 자리 수"},
+  2: {lo: 10,    hi: 99,    desc: "두 자리 수"},
+  3: {lo: 100,   hi: 999,   desc: "세 자리 수"},
+  4: {lo: 1000,  hi: 9999,  desc: "네 자리 수"},
+  5: {lo: 1000,  hi: 9999,  desc: "네 자리 수 · 곱셈과 나눗셈"},
+  6: {lo: 10000, hi: 99999, desc: "다섯 자리 수"}
+};
+function buildSheet(cfg){
+  const rnd = mulberry32(cfg.seed);
+  const R = makeR(rnd);
+  const g = Object.assign({grade: cfg.grade, carry: cfg.carry}, GRADES[cfg.grade]);
+  const pool = poolFor(cfg.grade, cfg.cats);
+  const items = [];
+  let fresh = [], guard = 0;
+  while(items.length < cfg.count && guard++ < 500){
+    if(!fresh.length) fresh = pool.slice();               // 한 바퀴 돌면 다시 채운다
+    const at = Math.floor(rnd() * fresh.length);
+    const tpl = fresh[at];
+    fresh.splice(at, 1);
+    if(items.length && items[items.length - 1].tpl.id === tpl.id && pool.length > 1) continue;
+    const v = tpl.gen(R, g);
+    if(tpl.scale) v.b *= tpl.scale;
+    v.name = R.pick(NAMES);
+    if(tpl.two){ do { v.name2 = R.pick(NAMES); } while(v.name2 === v.name); }
+    items.push({tpl, v, sentence: renderQuestion(tpl, v), nums: tpl.nums(v), answer: tpl.ans(v)});
+  }
+  return items;
+}
+
+/* ══════════ 7. 상태 ══════════ */
+const STEP_LABELS = ["단서", "연산", "식", "답"];
+const OP_ALL = ["+", "−", "×", "÷"];
+const cfg = {grade: 3, cats: ["merge", "add", "sub", "compare"], count: 5, carry: true, seed: 0};
+let sheet = [], qi = 0, step = 0, record = [], picked = null, blanks = [], typed = "";
+
+const $ = id => document.getElementById(id);
+const scr = {home: $("scr-home"), solve: $("scr-solve"), result: $("scr-result"), video: $("scr-video")};
+function show(name){
+  for(const k in scr) scr[k].hidden = (k !== name);
+  window.scrollTo(0, 0);
+}
+
+/* ══════════ 8. 홈 화면 ══════════ */
+function renderHome(){
+  $("gradeChips").innerHTML = [1,2,3,4,5,6].map(n =>
+    '<button class="chip" data-g="' + n + '" aria-pressed="' + (cfg.grade === n) + '">초' + n + "</button>").join("");
+  $("gradeHint").textContent = "초" + cfg.grade + " · " + GRADES[cfg.grade].desc + " 범위에서 숫자가 만들어집니다.";
+
+  const avail = catsFor(cfg.grade);
+  $("catChips").innerHTML = Object.keys(CATS).map(k => {
+    const c = CATS[k], off = avail.indexOf(k) < 0;
+    return '<button class="chip" data-c="' + k + '" aria-pressed="' + (cfg.cats.includes(k) && !off) + '"' +
+      (off ? " disabled" : "") + ">" + c.label + '<span class="op">' + c.op + "</span></button>";
+  }).join("");
+
+  $("countChips").innerHTML = [3,5,10,20].map(n =>
+    '<button class="chip" data-n="' + n + '" aria-pressed="' + (cfg.count === n) + '">' + n + "문항</button>").join("");
+
+  $("carryChips").innerHTML = [[true, "있음"], [false, "없음"]].map(p =>
+    '<button class="chip" data-y="' + p[0] + '" aria-pressed="' + (cfg.carry === p[0]) + '">' + p[1] + "</button>").join("");
+
+  const n = vid.chapters.length;
+  $("vsum").textContent = n
+    ? (vid.id ? "구간 " + n + "개 등록됨. 틀린 문제에서 해설로 바로 넘어갑니다."
+              : "구간 " + n + "개. 영상 주소를 아직 안 넣어서 재생은 안 됩니다.")
+    : "수업 영상을 구간으로 나눠 두면, 아이가 틀린 문제의 해설로 바로 갑니다.";
+  const ready = cfg.cats.length > 0;
+  $("dock").innerHTML = '<button class="btn" id="startBtn"' + (ready ? "" : " disabled") + ">문제 풀기 시작</button>";
+  if(ready) $("startBtn").onclick = start;
+}
+$("gradeChips").onclick = e => {
+  const b = e.target.closest("[data-g]"); if(!b) return;
+  cfg.grade = +b.dataset.g;
+  const ok = catsFor(cfg.grade);
+  cfg.cats = cfg.cats.filter(k => ok.indexOf(k) >= 0);
+  if(!cfg.cats.length) cfg.cats = ok.slice(0, 3);
+  renderHome();
+};
+$("catChips").onclick = e => {
+  const b = e.target.closest("[data-c]"); if(!b || b.disabled) return;
+  const k = b.dataset.c, i = cfg.cats.indexOf(k);
+  if(i < 0) cfg.cats.push(k); else cfg.cats.splice(i, 1);
+  renderHome();
+};
+$("countChips").onclick = e => {
+  const b = e.target.closest("[data-n]"); if(!b) return;
+  cfg.count = +b.dataset.n; renderHome();
+};
+$("carryChips").onclick = e => {
+  const b = e.target.closest("[data-y]"); if(!b) return;
+  cfg.carry = b.dataset.y === "true"; renderHome();
+};
+
+/* ══════════ 9. 풀이 진행 ══════════ */
+function start(){
+  const raw = $("codeIn").value.trim().toUpperCase();
+  const fromCode = raw.length === 6 ? codeToSeed(raw) : null;
+  cfg.seed = (fromCode !== null && fromCode !== undefined) ? fromCode : (Math.random() * 0xFFFFFFFF) >>> 0;
+  sheet = buildSheet(cfg);
+  if(!sheet.length){ return; }
+  qi = 0; step = 0; record = sheet.map(() => [null, null, null, null]);
+  $("tag").textContent = seedToCode(cfg.seed);
+  show("solve");
+  renderStep();
+}
+function q(){ return sheet[qi]; }
+
+function renderStep(){
+  const item = q();
+  $("qnum").textContent = (qi + 1) + " / " + sheet.length;
+  $("qcat").textContent = CATS[item.tpl.cat].label;
+  $("qtext").innerHTML = questionHTML(item.sentence);
+  $("qtext").className = "qtext" + (step === 0 ? "" : " locked");
+  $("fb").innerHTML = "";
+  picked = null; blanks = []; typed = "";
+
+  $("steps").innerHTML = STEP_LABELS.map((l, i) => {
+    let on = "";
+    if(i === step) on = "now";
+    else if(i < step) on = record[qi][i] === true ? "ok" : "no";
+    return '<div class="stepdot" data-on="' + on + '">' + l + "</div>";
+  }).join("");
+
+  if(step === 0) stepCue();
+  else if(step === 1) stepOp();
+  else if(step === 2) stepExpr();
+  else stepAnswer();
+}
+
+function askHTML(n, text){ return '<div class="ask"><i>' + n + "</i>" + text + "</div>"; }
+
+/* 1단계 — 단서 찾기 */
+function stepCue(){
+  $("stage").innerHTML = askHTML(1, "연산을 알려 주는 <b>단서 단어</b>를 문장에서 찾아 누르세요.");
+  $("dock").innerHTML = "";
+  $("qtext").querySelectorAll(".tap").forEach(btn => {
+    btn.onclick = () => {
+      const w = btn.dataset.w, ok = q().tpl.cue.includes(w);
+      $("qtext").querySelectorAll(".tap").forEach(b => {
+        b.disabled = true;
+        if(q().tpl.cue.includes(b.dataset.w)) b.dataset.state = "right";
+      });
+      if(!ok) btn.dataset.state = "wrong";
+      record[qi][0] = ok;
+      feedback(ok, ok ? "맞아요. 이 단어가 연산을 알려 줍니다."
+                      : "단서는 <b>" + q().tpl.cue.join(", ") + "</b>였어요.");
+    };
+  });
+}
+
+/* 2단계 — 연산 고르기 */
+function stepOp(){
+  const ops = cfg.grade >= 3 ? OP_ALL : (cfg.grade >= 2 ? ["+", "−", "×"] : ["+", "−"]);
+  $("stage").innerHTML = askHTML(2, "그럼 어떤 <b>연산</b>일까요?") +
+    '<div class="ops">' + ops.map(o => '<button class="op-btn" data-o="' + o + '">' + o + "</button>").join("") + "</div>";
+  $("dock").innerHTML = "";
+  $("stage").querySelectorAll(".op-btn").forEach(btn => {
+    btn.onclick = () => {
+      const ok = btn.dataset.o === q().tpl.op;
+      $("stage").querySelectorAll(".op-btn").forEach(b => {
+        b.disabled = true;
+        b.setAttribute("aria-pressed", String(b.dataset.o === q().tpl.op));
+      });
+      record[qi][1] = ok;
+      feedback(ok, ok ? "좋아요." : "이 문장은 <b>" + q().tpl.op + "</b> 입니다.");
+    };
+  });
+}
+
+/* 3단계 — 식 세우기 */
+function stepExpr(){
+  const item = q(), n = item.nums.length, op = item.tpl.op;
+  const shuffled = item.nums.slice();
+  for(let i = shuffled.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  blanks = new Array(n).fill(null);
+  let html = askHTML(3, "숫자를 눌러 <b>식</b>을 완성하세요.") + '<div class="expr" id="expr">';
+  for(let i = 0; i < n; i++){
+    html += '<button class="blank" data-i="' + i + '"></button>';
+    if(i < n - 1) html += '<span class="sign">' + op + "</span>";
+  }
+  html += '<span class="sign">=</span><span class="blank" style="border-style:dotted;color:var(--ink3)">?</span></div>';
+  html += '<div class="bank" id="bank">' + shuffled.map((v, i) =>
+    '<button class="numchip" data-v="' + v + '" data-k="' + i + '">' + v + "</button>").join("") + "</div>";
+  $("stage").innerHTML = html;
+  $("dock").innerHTML = "";
+
+  const sync = () => {
+    $("stage").querySelectorAll(".blank[data-i]").forEach(b => {
+      const v = blanks[+b.dataset.i];
+      b.textContent = v === null ? "" : v.value;
+      b.classList.toggle("filled", v !== null);
+    });
+    const used = blanks.filter(Boolean).map(x => x.k);
+    $("stage").querySelectorAll(".numchip").forEach(c => {
+      c.dataset.used = used.includes(+c.dataset.k) ? "1" : "0";
+    });
+    if(blanks.every(x => x !== null)) setTimeout(checkExpr, 180);
+  };
+  $("bank").onclick = e => {
+    const c = e.target.closest(".numchip"); if(!c || c.dataset.used === "1") return;
+    const slot = blanks.indexOf(null); if(slot < 0) return;
+    blanks[slot] = {value: +c.dataset.v, k: +c.dataset.k};
+    sync();
+  };
+  $("expr").onclick = e => {
+    const b = e.target.closest(".blank[data-i]"); if(!b) return;
+    blanks[+b.dataset.i] = null; sync();
+  };
+
+  function checkExpr(){
+    const got = blanks.map(x => x.value), want = item.nums;
+    const ok = (op === "−" || op === "÷" || item.tpl.ordered)
+      ? got.every((v, i) => v === want[i])
+      : got.slice().sort((x, y) => x - y).join() === want.slice().sort((x, y) => x - y).join();
+    record[qi][2] = ok;
+    $("stage").querySelectorAll(".blank,.numchip").forEach(b => b.disabled = true);
+    feedback(ok, ok ? "식이 맞습니다." : "바른 식은 <b>" + want.join(" " + op + " ") + "</b> 입니다.");
+  }
+}
+
+/* 4단계 — 답 */
+function stepAnswer(){
+  const item = q();
+  const expr = item.nums.join(" " + item.tpl.op + " ");
+  $("stage").innerHTML = askHTML(4, "<span class='mono'>" + expr + "</span> 의 답은?") +
+    '<div class="ansbox"><span class="ansval mono" id="ansval"></span><span class="ansunit">' + item.tpl.unit + "</span></div>" +
+    '<div class="pad">' + [1,2,3,4,5,6,7,8,9].map(n => '<button class="key" data-d="' + n + '">' + n + "</button>").join("") +
+    '<button class="key fn" data-x="del">지우기</button><button class="key" data-d="0">0</button>' +
+    '<button class="key fn" data-x="ok">확인</button></div>';
+  $("dock").innerHTML = "";
+  const val = $("ansval");
+  $("stage").querySelector(".pad").onclick = e => {
+    const k = e.target.closest(".key"); if(!k) return;
+    if(k.dataset.d !== undefined){ if(typed.length < 7) typed += k.dataset.d; }
+    else if(k.dataset.x === "del") typed = typed.slice(0, -1);
+    else if(k.dataset.x === "ok"){
+      if(!typed.length) return;
+      const ok = +typed === item.answer;
+      record[qi][3] = ok;
+      $("stage").querySelectorAll(".key").forEach(b => b.disabled = true);
+      feedback(ok, ok ? "정답입니다." : "정답은 <b>" + item.answer + item.tpl.unit + "</b> 입니다.");
+      return;
+    }
+    val.textContent = typed;
+  };
+}
+
+/* 단계 피드백 + 다음으로 */
+function feedback(ok, msg){
+  $("steps").children[step].dataset.on = ok ? "ok" : "no";
+  $("fb").innerHTML = '<div class="fb ' + (ok ? "y" : "n") + '"><span class="mk">' + (ok ? "✓" : "✗") +
+    '</span><span><b>' + (ok ? "잘했어요" : "다시 볼까요") + "</b>" + msg + "</span></div>";
+  const last = (step === 3 && qi === sheet.length - 1);
+  $("dock").innerHTML = '<button class="btn ' + (ok ? "ok" : "") + '" id="nextBtn">' +
+    (last ? "결과 보기" : (step === 3 ? "다음 문제" : "다음 단계")) + "</button>";
+  $("nextBtn").onclick = () => {
+    if(step < 3){ step++; renderStep(); }
+    else if(qi < sheet.length - 1){ qi++; step = 0; renderStep(); }
+    else renderResult();
+  };
+  $("nextBtn").scrollIntoView({block: "nearest"});
+}
+
+/* ══════════ 10. 결과 ══════════ */
+function pct(a, b){ return b ? Math.round(a / b * 100) : 0; }
+function barRow(label, got, tot){
+  const p = pct(got, tot);
+  const cls = p >= 80 ? "high" : (p < 50 ? "low" : "");
+  return '<div class="bar-row"><span>' + label + '</span>' +
+    '<span class="bar-track"><span class="bar-fill ' + cls + '" style="width:' + p + '%"></span></span>' +
+    '<span class="bar-pct">' + p + "%</span></div>";
+}
+function renderResult(){
+  const total = sheet.length * 4;
+  const got = record.flat().filter(x => x === true).length;
+  $("rScore").textContent = pct(got, total) + "점";
+  $("rSub").textContent = sheet.length + "문제 × 4단계 = " + total + "칸 중 " + got + "칸 정답";
+
+  const byStep = [0,1,2,3].map(i => record.filter(r => r[i] === true).length);
+  $("rSteps").innerHTML = STEP_LABELS.map((l, i) => barRow(l, byStep[i], sheet.length)).join("");
+
+  const weakest = byStep.indexOf(Math.min.apply(null, byStep));
+  const advice = ["문장에서 단서를 찾는 연습이 더 필요합니다.",
+                  "단서는 찾지만 어떤 연산인지 연결하지 못합니다.",
+                  "식으로 옮기는 단계에서 막힙니다. 숫자 순서를 헷갈립니다.",
+                  "식은 세우는데 계산에서 틀립니다. 연산 연습이 필요합니다."];
+  $("rDiag").innerHTML = "<b>가장 약한 곳: " + STEP_LABELS[weakest] + "</b> — " + advice[weakest];
+
+  const cats = {};
+  sheet.forEach((it, i) => {
+    const k = it.tpl.cat;
+    if(!cats[k]) cats[k] = {got: 0, tot: 0};
+    cats[k].got += record[i].filter(x => x === true).length;
+    cats[k].tot += 4;
+  });
+  $("rCats").innerHTML = Object.keys(cats).map(k =>
+    barRow(CATS[k].label, cats[k].got, cats[k].tot)).join("");
+
+  $("rList").innerHTML = sheet.map((it, i) => {
+    const missed = record[i].some(v => v === false);
+    return '<div class="qrow"><span class="i">' + (i + 1) + '</span><span class="t">' +
+      plain(it.sentence).slice(0, 22) + '…</span><span class="marks">' +
+      record[i].map(v => '<span class="mark ' + (v ? "y" : "n") + '">' + (v ? "✓" : "✗") + "</span>").join("") +
+      "</span>" + (missed ? playBtn(it.tpl.cat) : "<span></span>") + "</div>";
+  }).join("");
+
+  // 가장 약한 유형의 해설 구간으로 바로 보내기
+  const weakCat = Object.keys(cats).sort((a, b) => cats[a].got / cats[a].tot - cats[b].got / cats[b].tot)[0];
+  $("rWatch").innerHTML = weakCat
+    ? '<p class="hint" style="margin-top:12px"><b>' + CATS[weakCat].label +
+      "</b> 유형이 가장 약합니다. " + (vid.id ? "수업 영상에서 이 부분을 다시 보세요." :
+      "수업 영상을 연결해 두면 여기서 바로 해설로 넘어갑니다.") + "</p>" + playBtn(weakCat, true)
+    : "";
+
+  $("rCode").textContent = seedToCode(cfg.seed);
+  $("dock").innerHTML = '<div class="row2"><button class="btn ghost" id="againBtn">같은 문제 다시</button>' +
+    '<button class="btn" id="homeBtn">설정 바꾸기</button></div>';
+  $("againBtn").onclick = () => { qi = 0; step = 0; record = sheet.map(() => [null,null,null,null]); show("solve"); renderStep(); };
+  $("homeBtn").onclick = () => { $("codeIn").value = seedToCode(cfg.seed); $("tag").textContent = "프로토타입"; show("home"); renderHome(); };
+  show("result");
+}
+
+
+/* ══════════ 11. 수업 영상 구간 ══════════ */
+const VKEY = "dongsa.video.v1";
+let vid = {id: "", url: "", chapters: []};
+function vload(){
+  try{ const raw = localStorage.getItem(VKEY); if(raw) vid = Object.assign(vid, JSON.parse(raw)); }catch(e){}
+  if(!Array.isArray(vid.chapters)) vid.chapters = [];
+}
+function vsave(){ try{ localStorage.setItem(VKEY, JSON.stringify(vid)); }catch(e){} }
+function esc(x){ return String(x).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function ytId(u){
+  const m = String(u).match(/(?:youtu\.be\/|[?&]v=|\/embed\/|\/live\/|\/shorts\/)([A-Za-z0-9_-]{11})/);
+  return m ? m[1] : "";
+}
+function parseTime(str){
+  const parts = String(str).trim().split(":");
+  if(!parts.length || parts.some(x => x === "" || !/^\d+$/.test(x.trim()))) return null;
+  const secs = parts.map(x => parseInt(x, 10)).reduce((a, b) => a * 60 + b, 0);
+  return (secs >= 0 && secs < 86400) ? secs : null;
+}
+function fmtTime(t){
+  const pad = n => String(n).padStart(2, "0");
+  const h = Math.floor(t / 3600), m = Math.floor(t % 3600 / 60), s = t % 60;
+  return h ? h + ":" + pad(m) + ":" + pad(s) : m + ":" + pad(s);
+}
+function ytLink(t){ return vid.id ? "https://www.youtube.com/watch?v=" + vid.id + "&t=" + t + "s" : ""; }
+// 해당 유형의 구간을 찾고, 없으면 '전체 공통' 구간으로 보낸다
+function chapterFor(cat){
+  const ex = vid.chapters.filter(c => c.cat === cat).sort((a, b) => a.t - b.t);
+  if(ex.length) return ex[0];
+  const gen = vid.chapters.filter(c => !c.cat).sort((a, b) => a.t - b.t);
+  return gen.length ? gen[0] : null;
+}
+function playBtn(cat, wide){
+  const ch = chapterFor(cat);
+  if(!ch || !vid.id) return '<span class="play' + (wide ? " wide" : "") + '" data-off="1">해설 없음</span>';
+  return '<a class="play' + (wide ? " wide" : "") + '" href="' + ytLink(ch.t) +
+         '" target="_blank" rel="noopener">▶ ' + fmtTime(ch.t) + (wide ? " 해설 보기" : "") + "</a>";
+}
+function renderVideo(){
+  if(document.activeElement !== $("vurl")) $("vurl").value = vid.url || "";
+  $("vstat").innerHTML = vid.id
+    ? '연결됨 · 영상 번호 <b class="mono">' + esc(vid.id) + "</b>"
+    : "주소를 넣으면 구간마다 '그 시각부터 보기' 버튼이 만들어집니다.";
+  $("vcat").innerHTML = '<option value="">전체 공통</option>' +
+    Object.keys(CATS).map(k => '<option value="' + k + '">' + CATS[k].label + "</option>").join("");
+  const list = vid.chapters.slice().sort((a, b) => a.t - b.t);
+  $("vlist").innerHTML = list.length
+    ? list.map((c, i) =>
+        '<div class="chap"><span class="t">' + fmtTime(c.t) + '</span>' +
+        '<span class="n">' + esc(c.title) + "<small>" + (c.cat ? CATS[c.cat].label : "전체 공통") + "</small></span>" +
+        playBtn(c.cat) + '<button class="x" data-del="' + i + '" aria-label="삭제">✕</button></div>')
+      .join("")
+    : '<div class="vid-empty">아직 나눈 구간이 없습니다.<br>수업에서 다룬 내용을 시각과 함께 적어 두세요.</div>';
+  $("dock").innerHTML = '<button class="btn" id="vback">저장하고 돌아가기</button>';
+  $("vback").onclick = () => { vsave(); $("tag").textContent = "프로토타입"; show("home"); renderHome(); };
+}
+
+/* ══════════ 시작 ══════════ */
+document.addEventListener("scroll", () => {
+  $("topbar").classList.toggle("stuck", window.scrollY > 6);
+}, {passive: true});
+
+$("toVideo").onclick = () => { $("tag").textContent = "선생님용"; show("video"); renderVideo(); };
+$("vurl").oninput = e => {
+  vid.url = e.target.value.trim();
+  vid.id = ytId(vid.url);
+  vsave(); renderVideo();
+};
+$("vadd").onclick = () => {
+  const t = parseTime($("vtime").value), title = $("vtitle").value.trim();
+  if(t === null){ $("vmsg").textContent = "시작 시각을 4:20 또는 1:02:30 형태로 적어 주세요."; return; }
+  if(!title){ $("vmsg").textContent = "구간 이름을 적어 주세요."; return; }
+  vid.chapters.push({t, title, cat: $("vcat").value});
+  $("vtime").value = ""; $("vtitle").value = ""; $("vmsg").textContent = "";
+  vsave(); renderVideo();
+};
+$("vlist").onclick = e => {
+  const b = e.target.closest("[data-del]"); if(!b) return;
+  const list = vid.chapters.slice().sort((a, x) => a.t - x.t);
+  const target = list[+b.dataset.del];
+  vid.chapters.splice(vid.chapters.indexOf(target), 1);
+  vsave(); renderVideo();
+};
+
+vload();
+renderHome();
+</script>

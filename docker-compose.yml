@@ -1,0 +1,40 @@
+# 운영과 같은 구성(PostgreSQL)으로 돌려 보기 위한 것.
+#
+#   docker compose up -d db      # DB 만 띄우고 앱은 IntelliJ 에서 돌릴 때
+#   docker compose up --build    # 앱까지 컨테이너로
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: dongsa
+      POSTGRES_USER: dongsa
+      POSTGRES_PASSWORD: dongsa-local-password
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dongsa -d dongsa"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  app:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DATABASE_URL: jdbc:postgresql://db:5432/dongsa
+      DATABASE_USER: dongsa
+      DATABASE_PASSWORD: dongsa-local-password
+      # 운영에서는 반드시 다른 값으로. 이 값 그대로면 토큰을 누구나 위조할 수 있다.
+      JWT_SECRET: local-compose-secret-change-this-in-real-deployment
+      CORS_ORIGINS: "http://localhost:5173"
+    ports:
+      - "8080:8080"
+
+volumes:
+  db-data:

@@ -1,0 +1,12 @@
+{
+  "name": "동사로 푸는 수학",
+  "short_name": "동사수학",
+  "description": "문장 속 단어를 찾으면 연산이 보입니다",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F3F4FA",
+  "theme_color": "#F3F4FA",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

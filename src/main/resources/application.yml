@@ -1,0 +1,55 @@
+spring:
+  application:
+    name: dongsa-math
+  lifecycle:
+    # 새 버전을 올릴 때 처리 중이던 요청은 끝내고 죽는다.
+    # 아이가 답을 제출하는 순간 배포가 겹쳐도 그 답은 저장된다.
+    timeout-per-shutdown-phase: 20s
+  profiles:
+    active: dev
+  jpa:
+    open-in-view: false
+    hibernate:
+      # 스키마는 db/migration 의 SQL 이 만든다.
+      # validate 라서 엔티티와 마이그레이션이 어긋나면 서버가 아예 뜨지 않는다.
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: true
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      # /actuator/health/liveness 와 /readiness 가 생긴다.
+      # 배포 플랫폼이 "떴는가" 와 "받을 준비가 됐는가" 를 따로 물어본다.
+      probes:
+        enabled: true
+      show-details: never
+
+app:
+  jwt:
+    # 운영에서는 반드시 환경변수 JWT_SECRET 으로 덮어쓸 것. 32바이트 이상이어야 한다.
+    secret: ${JWT_SECRET:dev-only-secret-please-change-this-to-a-long-random-value}
+    teacher-ttl: PT12H   # 선생님은 12시간
+    student-ttl: P30D    # 아이는 30일 (다시 로그인시키지 않기 위해)
+  cors:
+    # 운영에서는 실제 프런트 주소만 넣는다. CORS_ORIGINS=https://... 로 덮어쓴다.
+    allowed-origins: ${CORS_ORIGINS:*}
+  login:
+    # 학원 코드와 이름을 알면 PIN 은 1만 가지뿐이다. 무작정 넣어 보는 것을 막는다.
+    max-failures: 10
+    max-failures-per-ip: 60
+    window: PT10M
+
+server:
+  port: ${PORT:8080}
+  shutdown: graceful
+  # 프록시 뒤에 있을 때 X-Forwarded-For 를 반영한다 (시도 제한이 진짜 IP 를 보게)
+  forward-headers-strategy: framework

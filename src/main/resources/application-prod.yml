@@ -1,0 +1,20 @@
+# 배포용. 비밀은 전부 환경변수로 받는다.
+spring:
+  datasource:
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USER}
+    password: ${DATABASE_PASSWORD}
+    hikari:
+      # 작은 인스턴스에서는 커넥션을 많이 잡아 봐야 DB 쪽이 먼저 막힌다
+      maximum-pool-size: ${DB_POOL_SIZE:10}
+      connection-timeout: 10000
+  jpa:
+    show-sql: false
+
+logging:
+  level:
+    root: INFO
+    com.dongsa.math: INFO
+  pattern:
+    # 배포 플랫폼이 자체 타임스탬프를 붙이므로 여기서는 뺀다
+    console: "%-5level %logger{36} - %msg%n"
