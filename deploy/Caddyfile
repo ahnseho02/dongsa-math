@@ -1,0 +1,13 @@
+# 도메인만 맞으면 Let's Encrypt 인증서를 알아서 받고 90일마다 갱신한다.
+{$DOMAIN} {
+	encode zstd gzip
+	reverse_proxy app:8080
+
+	# 아이들 폰에서 쓰는 서비스라 기본적인 것만 켠다
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "same-origin"
+		-Server
+	}
+}

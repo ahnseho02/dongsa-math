@@ -187,6 +187,83 @@ JPA 는 `ddl-auto: validate` 로 맞는지 검사만 한다. 엔티티와 마이
 
 스키마를 바꿀 때는 `V2__무엇을_바꿨는지.sql` 을 새로 만든다. V1 은 이미 적용된 뒤이므로 고치지 않는다.
 
+### 어디에 올릴까
+
+**완전 무료 + 항상 켜짐 + 제대로 된 HTTPS 주소** 셋을 다 주는 곳은 사실상 없다. 하나는 포기해야 한다.
+
+| | 비용 | 항상 켜짐 | HTTPS 주소 | 서버 관리 |
+|---|---|---|---|---|
+| **오라클 클라우드 Always Free** | **0원** | O | DuckDNS 등으로 O | 직접 |
+| Railway | 월 $5 | O | 무료 주소 제공 | 없음 |
+| Render 무료 | 0원 | **X — 15분 쉬면 잠듦** | 무료 주소 제공 | 없음 |
+| 집 컴퓨터 | 0원 | 켜 둘 때만 | 터널 필요 | 직접 |
+
+**Render 무료는 이 서비스에 맞지 않는다.** 15분 쉬면 잠들어 다음 접속이 50초쯤 걸리고,
+무료 PostgreSQL 은 30일이면 삭제된다. 학원 데이터를 둘 곳이 아니다.
+
+**돈을 안 쓸 거면 오라클 클라우드 Always Free** 가 답이다.
+평생 무료이고 춘천(서울) 리전이 있어 빠르다. ARM 4코어 / 24GB 는 이 앱에 과할 정도다.
+카드 등록은 필요하지만 Always Free 안에서는 청구되지 않는다.
+대신 서버를 직접 본다 — 아래 `deploy/` 에 필요한 것을 다 넣어 두었으니 명령 몇 줄이면 된다.
+
+**손이 덜 가는 쪽을 원하면 Railway.** 월 $5 로 백업까지 알아서 해 준다.
+
+### 오라클 클라우드에 올리기 (무료)
+
+1. **인스턴스 만들기** — Compute → Instances → Create.
+   Shape 을 `VM.Standard.A1.Flex` (ARM) 로 바꾸고 **OCPU 2 / 메모리 12GB** 정도면 넉넉하다.
+   이미지는 Ubuntu 22.04. SSH 키를 받아 둔다.
+   *ARM 이 "out of capacity" 로 안 만들어지는 일이 흔하다. 몇 시간 뒤 다시 시도하면 대개 된다.*
+
+2. **방화벽 열기** — 두 군데를 다 열어야 한다. 하나만 열고 헤매기 쉽다.
+   - 오라클 콘솔: VCN → Security List → Ingress 에 TCP 80, 443 추가
+   - 서버 안: `sudo iptables -I INPUT 6 -m state --state NEW -p tcp --dport 80 -j ACCEPT` (443 도 같이)
+     후 `sudo netfilter-persistent save`
+
+3. **주소 만들기** — 도메인이 있으면 A 레코드를 서버 IP 로 맞춘다.
+   없으면 [duckdns.org](https://www.duckdns.org) 에서 `무엇이든.duckdns.org` 를 **무료로** 받아 IP 를 넣는다.
+   Let's Encrypt 인증서가 이 주소로 발급되므로 **HTTPS 까지 0원**이다.
+
+4. **서버에서**
+
+   ```bash
+   # 도커 설치
+   curl -fsSL https://get.docker.com | sudo sh
+   sudo usermod -aG docker $USER && exec su - $USER
+
+   # 받아서 설정
+   git clone https://github.com/ahnseho02/dongsa-math.git
+   cd dongsa-math
+   cp deploy/env.example .env
+   nano .env        # DOMAIN, POSTGRES_PASSWORD, JWT_SECRET 채우기
+   openssl rand -base64 48   # JWT_SECRET 은 이 값으로
+
+   # 띄우기
+   docker compose -f deploy/docker-compose.prod.yml --env-file .env up -d --build
+   ```
+
+   caddy 가 인증서를 받아 오는 데 1분쯤 걸린다. 끝나면 `https://내주소` 로 열린다.
+
+5. **백업 걸기** — 이게 제일 중요하다.
+
+   ```bash
+   chmod +x deploy/backup.sh
+   crontab -e
+   # 매일 새벽 3시
+   0 3 * * * /home/ubuntu/dongsa-math/deploy/backup.sh >> /home/ubuntu/backup.log 2>&1
+   ```
+
+   14일치를 남기고 오래된 것은 지운다. 되돌릴 때는 `./deploy/restore.sh backups/파일이름.sql.gz`.
+   **서버가 통째로 날아가면 백업도 같이 사라지므로** 가끔 노트북으로도 한 벌 내려받아 둔다.
+
+   ```bash
+   scp ubuntu@서버IP:~/dongsa-math/backups/*.sql.gz ~/Downloads/
+   ```
+
+새 버전을 올릴 때는 서버에서 `git pull && docker compose -f deploy/docker-compose.prod.yml --env-file .env up -d --build`.
+
+`deploy/` 구성에서 **PostgreSQL 포트는 바깥에 열지 않는다.** 앱 컨테이너에서만 닿는다.
+
 ### Railway 에 올리기
 
 1. **저장소 연결** — Railway 에서 `New Project → Deploy from GitHub repo` 로 이 저장소를 고른다.
@@ -402,7 +479,8 @@ PIN 을 길게 만들 수는 없으므로(초등학생이 쓴다) 계정별 10�
 
 - [x] 무중단 종료와 헬스 프로브 (liveness / readiness)
 - [x] 플랫폼이 주는 `postgresql://` 주소 자동 변환
-- [ ] **DB 백업 켜기** — 학원 데이터가 날아가면 복구할 방법이 없다. 배포 직후 바로 확인할 것
+- [x] 백업·복구 스크립트 (`deploy/backup.sh`, `deploy/restore.sh`)
+- [ ] **백업을 실제로 걸기** — 배포 직후 바로. 학원 데이터가 날아가면 복구할 방법이 없다
 - [ ] 에러 추적(Sentry 등)과 접속 로그 보관
 - [ ] 서버를 여러 대로 늘린다면 시도 제한을 Redis 로 옮기기
 
