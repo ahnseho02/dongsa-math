@@ -224,45 +224,45 @@ JPA 는 `ddl-auto: validate` 로 맞는지 검사만 한다. 엔티티와 마이
    없으면 [duckdns.org](https://www.duckdns.org) 에서 `무엇이든.duckdns.org` 를 **무료로** 받아 IP 를 넣는다.
    Let's Encrypt 인증서가 이 주소로 발급되므로 **HTTPS 까지 0원**이다.
 
-4. **서버에서**
+4. **서버에서 명령 한 줄**
 
    ```bash
-   # 도커 설치
-   curl -fsSL https://get.docker.com | sudo sh
-   sudo usermod -aG docker $USER && exec su - $USER
-
-   # 받아서 설정
    git clone https://github.com/ahnseho02/dongsa-math.git
-   cd dongsa-math
-   cp deploy/env.example .env
-   nano .env        # DOMAIN, POSTGRES_PASSWORD, JWT_SECRET 채우기
-   openssl rand -base64 48   # JWT_SECRET 은 이 값으로
-
-   # 띄우기
-   docker compose -f deploy/docker-compose.prod.yml --env-file .env up -d --build
+   cd dongsa-math && ./deploy/setup.sh
    ```
 
-   caddy 가 인증서를 받아 오는 데 1분쯤 걸린다. 끝나면 `https://내주소` 로 열린다.
+   `setup.sh` 가 도커 설치, 서버 안쪽 방화벽, 비밀번호·토큰키 생성, 빌드와 기동,
+   매일 백업 등록까지 한다. 물어보는 건 **접속할 주소** 하나뿐이다.
+   여러 번 돌려도 안전하다 — 이미 되어 있는 것은 건너뛴다.
 
-5. **백업 걸기** — 이게 제일 중요하다.
+   도커를 새로 깐 경우에는 권한 적용을 위해 한 번 다시 접속한 뒤 스크립트를 한 번 더 돌린다.
 
-   ```bash
-   chmod +x deploy/backup.sh
-   crontab -e
-   # 매일 새벽 3시
-   0 3 * * * /home/ubuntu/dongsa-math/deploy/backup.sh >> /home/ubuntu/backup.log 2>&1
-   ```
+   주소가 이 서버를 가리키지 않으면 **인증서 발급 전에** 미리 알려 준다.
 
-   14일치를 남기고 오래된 것은 지운다. 되돌릴 때는 `./deploy/restore.sh backups/파일이름.sql.gz`.
-   **서버가 통째로 날아가면 백업도 같이 사라지므로** 가끔 노트북으로도 한 벌 내려받아 둔다.
+5. **IP 가 바뀌지 않게** — 오라클 콘솔에서 공인 IP 를 `Reserved` 로 바꿔 둔다 (무료).
+   DuckDNS 를 쓴다면 `deploy/duckdns.sh` 를 크론에 걸어 두는 방법도 있다.
 
-   ```bash
-   scp ubuntu@서버IP:~/dongsa-math/backups/*.sql.gz ~/Downloads/
-   ```
+**새 버전 올리기** — 서버에서 `git pull && ./deploy/setup.sh`
 
-새 버전을 올릴 때는 서버에서 `git pull && docker compose -f deploy/docker-compose.prod.yml --env-file .env up -d --build`.
+**일상 명령**
 
-`deploy/` 구성에서 **PostgreSQL 포트는 바깥에 열지 않는다.** 앱 컨테이너에서만 닿는다.
+```bash
+docker compose -f deploy/docker-compose.prod.yml --env-file .env ps        # 상태
+docker compose -f deploy/docker-compose.prod.yml --env-file .env logs -f app  # 로그
+./deploy/backup.sh                              # 지금 바로 백업
+./deploy/restore.sh backups/파일이름.sql.gz      # 되돌리기
+```
+
+**이 구성에서 신경 쓴 것**
+
+- **PostgreSQL 포트를 바깥에 열지 않는다.** 앱 컨테이너에서만 닿는다
+- 앱 메모리를 1.5GB 로 묶어 둔다. JVM 힙은 그 75%(약 1.1GB)가 되고, 남은 메모리를 DB 가 쓴다.
+  작은 서버에서 JVM 이 메모리를 다 먹고 DB 가 굶는 일을 막는다
+- 비밀번호와 토큰 키는 `openssl` 로 만들어 `.env` 에 넣고 권한을 600 으로 둔다.
+  `.env` 는 저장소에 올라가지 않는다
+
+**확인한 것** — 이 이미지는 **arm64 에서 빌드되고 6초 만에 뜬다**(오라클 무료 티어는 ARM 이다).
+백업에서 되돌리는 것도 실제로 해 봤다 — 데이터를 지워 로그인이 401 이 된 상태에서 복구하니 그대로 살아났다.
 
 ### Railway 에 올리기
 

@@ -22,6 +22,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 10
+    mem_limit: ${DB_MEMORY:-1g}
     # 바깥에 포트를 열지 않는다. 앱 컨테이너에서만 닿는다.
 
   app:
@@ -38,6 +39,8 @@ services:
       DATABASE_USER: ${POSTGRES_USER:-dongsa}
       DATABASE_PASSWORD: "${POSTGRES_PASSWORD}"
       JWT_SECRET: "${JWT_SECRET:?JWT_SECRET 를 .env 에 넣으세요 — openssl rand -base64 48}"
+    # 작은 서버에서 JVM 이 메모리를 다 먹고 DB 를 굶기지 않게. 힙은 이 값의 75% 가 된다.
+    mem_limit: ${APP_MEMORY:-1500m}
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://localhost:8080/actuator/health/readiness || exit 1"]
       interval: 15s
