@@ -59,10 +59,10 @@ docker compose up --build    # 앱까지 컨테이너로
 ## 처음 써 보기
 
 ```bash
-# 1. 고모 가입 — 학원까지 같이 만들어진다
+# 1. 원장 가입 — 학원까지 같이 만들어진다
 curl -s -X POST localhost:8080/api/auth/signup -H 'Content-Type: application/json' -d '{
   "email":"gomo@example.com","password":"password123",
-  "name":"고모","academyName":"동사수학학원"}'
+  "name":"원장","academyName":"동사수학학원"}'
 
 # 응답의 token 과 user.academyCode 를 적어 둔다
 ```
@@ -291,7 +291,7 @@ docker compose -f deploy/docker-compose.prod.yml --env-file .env logs -f app  # 
    `PORT` 는 Railway 가 알아서 넣는다. `CORS_ORIGINS` 는 프런트를 같은 서버가 서빙하므로 비워 둔다.
 
 4. **주소 만들기** — `Settings → Networking → Generate Domain`.
-   `https://...up.railway.app` 이 나온다. 이 주소를 고모에게 보내면 된다.
+   `https://...up.railway.app` 이 나온다. 이 주소를 원장에게 보내면 된다.
 
 5. **첫 배포 확인**
 
