@@ -1,6 +1,7 @@
 package com.dongsa.math.game;
 
 import com.dongsa.math.problem.GradeRange;
+import com.dongsa.math.problem.Num;
 import com.dongsa.math.problem.Operation;
 import org.springframework.stereotype.Component;
 
@@ -37,22 +38,22 @@ public class GameFactory {
         return switch (operation) {
             case ADD -> {
                 int a = between(range, rnd), b = between(range, rnd);
-                yield new GameProblem(no, a, b, operation, a + b);
+                yield new GameProblem(no, Num.of(a), Num.of(b), operation, Num.of(a + b));
             }
             case SUBTRACT -> {
                 int a = between(range, rnd);
                 int b = 1 + rnd.nextInt(Math.max(1, a - 1));   // 답이 음수가 되지 않게
-                yield new GameProblem(no, a, b, operation, a - b);
+                yield new GameProblem(no, Num.of(a), Num.of(b), operation, Num.of(a - b));
             }
             case MULTIPLY -> {
                 int a = 2 + rnd.nextInt(grade <= 2 ? 8 : 18);
                 int b = 2 + rnd.nextInt(8);
-                yield new GameProblem(no, a, b, operation, a * b);
+                yield new GameProblem(no, Num.of(a), Num.of(b), operation, Num.of((long) a * b));
             }
             case DIVIDE -> {
                 int divisor = 2 + rnd.nextInt(8);
                 int quotient = 2 + rnd.nextInt(grade <= 3 ? 10 : 20);
-                yield new GameProblem(no, divisor * quotient, divisor, operation, quotient);
+                yield new GameProblem(no, Num.of((long) divisor * quotient), Num.of(divisor), operation, Num.of(quotient));
             }
         };
     }

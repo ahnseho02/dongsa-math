@@ -1,5 +1,7 @@
 package com.dongsa.math.problem;
 
+import java.util.List;
+
 public enum Operation {
 
     ADD("+"), SUBTRACT("−"), MULTIPLY("×"), DIVIDE("÷");
@@ -19,15 +21,15 @@ public enum Operation {
         return this == SUBTRACT || this == DIVIDE;
     }
 
-    public int apply(java.util.List<Integer> operands) {
-        int result = operands.get(0);
+    public Num apply(List<Num> operands) {
+        Num result = operands.get(0);
         for (int i = 1; i < operands.size(); i++) {
-            int n = operands.get(i);
+            Num n = operands.get(i);
             result = switch (this) {
-                case ADD -> result + n;
-                case SUBTRACT -> result - n;
-                case MULTIPLY -> result * n;
-                case DIVIDE -> result / n;
+                case ADD -> result.plus(n);
+                case SUBTRACT -> result.minus(n);
+                case MULTIPLY -> result.times(n);
+                case DIVIDE -> result.dividedBy(n);
             };
         }
         return result;

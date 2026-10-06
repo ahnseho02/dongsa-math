@@ -89,11 +89,11 @@ public class GameService {
                 continue;
             }
             attempted++;
-            Integer value = parse(answer.value());
-            if (value != null && value == problem.answer()) {
+            if (problem.answer().equalsValue(com.dongsa.math.problem.Num.parse(answer.value()))) {
                 solved++;
             } else {
-                wrong.add(new Wrong(problem.no(), problem.expression(), answer.value().strip(), problem.answer()));
+                wrong.add(new Wrong(problem.no(), problem.expression(),
+                        answer.value().strip(), problem.answerText()));
             }
         }
 
@@ -141,11 +141,4 @@ public class GameService {
         return null;
     }
 
-    private Integer parse(String value) {
-        try {
-            return Integer.valueOf(value.strip());
-        } catch (NumberFormatException e) {
-            return null;
-        }
-    }
 }

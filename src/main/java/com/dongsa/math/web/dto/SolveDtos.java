@@ -31,7 +31,8 @@ public final class SolveDtos {
             String categoryLabel,
             String sentence,
             List<String> tappableWords,
-            List<Integer> numbers,
+            // 분수(3/4)와 소수(1.5)가 섞이므로 글자로 주고받는다
+            List<String> numbers,
             String unit,
             List<StepState> steps) {}
 
@@ -50,7 +51,7 @@ public final class SolveDtos {
             @NotNull @Min(1) Integer problemNo,
             @NotNull SolveStep step,
             String value,
-            List<Integer> numbers) {}
+            List<String> numbers) {}
 
     public record AnswerResult(
             int problemNo,

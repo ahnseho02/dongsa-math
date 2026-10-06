@@ -44,6 +44,7 @@ public class WorksheetService {
             case COMPARE -> Operation.ADD.sign() + Operation.SUBTRACT.sign();
             case GROUP -> Operation.MULTIPLY.sign();
             case SHARE -> Operation.DIVIDE.sign();
+            case RATIO -> Operation.MULTIPLY.sign();
         };
     }
 

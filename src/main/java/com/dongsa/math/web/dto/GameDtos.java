@@ -34,7 +34,7 @@ public final class GameDtos {
             List<Wrong> wrong) {}
 
     /** 끝난 뒤에만 정답을 알려 준다. 틀린 것만 보여 주면 충분하다. */
-    public record Wrong(int no, String expression, String submitted, int answer) {}
+    public record Wrong(int no, String expression, String submitted, String answer) {}
 
     public record RankRow(
             int rank,

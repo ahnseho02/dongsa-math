@@ -22,10 +22,10 @@ class NumberFactoryTest {
         GradeRange range = GradeRange.of(grade);
         Random rnd = new Random(grade);
         for (int i = 0; i < ROUNDS; i++) {
-            List<Integer> with = NumberFactory.generate(NumberPattern.ADD_PAIR, range, true, rnd);
+            List<Num> with = NumberFactory.generate(NumberPattern.ADD_PAIR, range, true, rnd);
             assertThat(NumberFactory.hasCarry(with)).as("초%d %s 받아올림 있음", grade, with).isTrue();
 
-            List<Integer> without = NumberFactory.generate(NumberPattern.ADD_PAIR, range, false, rnd);
+            List<Num> without = NumberFactory.generate(NumberPattern.ADD_PAIR, range, false, rnd);
             assertThat(NumberFactory.hasCarry(without)).as("초%d %s 받아올림 없음", grade, without).isFalse();
         }
     }
@@ -38,12 +38,12 @@ class NumberFactoryTest {
         Random rnd = new Random(grade);
         for (int i = 0; i < ROUNDS; i++) {
             for (boolean borrow : new boolean[]{true, false}) {
-                List<Integer> n = NumberFactory.generate(NumberPattern.SUB_PAIR, range, borrow, rnd);
+                List<Num> n = NumberFactory.generate(NumberPattern.SUB_PAIR, range, borrow, rnd);
                 assertThat(n.get(0)).as("%s 앞의 수가 더 커야 한다", n).isGreaterThan(n.get(1));
 
                 // 한 자리 수끼리는 받아내림이 생길 수 없으므로 '있음'을 골라도 없는 문제가 나온다
                 boolean expected = borrow && NumberFactory.borrowPossible(range);
-                assertThat(NumberFactory.hasBorrow(n.get(0), n.get(1)))
+                assertThat(NumberFactory.hasBorrow((int) n.get(0).numerator(), (int) n.get(1).numerator()))
                         .as("초%d %s 받아내림 %s", grade, n, expected).isEqualTo(expected);
             }
         }
@@ -56,9 +56,9 @@ class NumberFactoryTest {
         GradeRange range = GradeRange.of(grade);
         Random rnd = new Random(grade);
         for (int i = 0; i < ROUNDS; i++) {
-            List<Integer> n = NumberFactory.generate(NumberPattern.DIV_PAIR, range, true, rnd);
-            assertThat(n.get(0) % n.get(1)).as("%s 는 나누어떨어져야 한다", n).isZero();
-            assertThat(n.get(0) / n.get(1)).isGreaterThanOrEqualTo(2);
+            List<Num> n = NumberFactory.generate(NumberPattern.DIV_PAIR, range, true, rnd);
+            assertThat(n.get(0).numerator() % n.get(1).numerator()).as("%s 는 나누어떨어져야 한다", n).isZero();
+            assertThat(n.get(0).dividedBy(n.get(1))).isGreaterThanOrEqualTo(Num.of(2));
         }
     }
 
@@ -68,8 +68,8 @@ class NumberFactoryTest {
         GradeRange range = GradeRange.of(3);
         Random rnd = new Random(1);
         for (int i = 0; i < ROUNDS; i++) {
-            List<Integer> n = NumberFactory.generate(NumberPattern.ADD_SMALL_SECOND, range, true, rnd);
-            assertThat(n.get(1)).isLessThanOrEqualTo(range.max() / 5);
+            List<Num> n = NumberFactory.generate(NumberPattern.ADD_SMALL_SECOND, range, true, rnd);
+            assertThat(n.get(1)).isLessThanOrEqualTo(Num.of(range.max() / 5));
         }
     }
 
@@ -80,12 +80,12 @@ class NumberFactoryTest {
         GradeRange range = GradeRange.of(grade);
         Random rnd = new Random(7);
         for (int i = 0; i < ROUNDS; i++) {
-            List<Integer> without = NumberFactory.generate(NumberPattern.ADD_TRIPLE, range, false, rnd);
+            List<Num> without = NumberFactory.generate(NumberPattern.ADD_TRIPLE, range, false, rnd);
             assertThat(NumberFactory.hasCarry(without)).as("초%d %s", grade, without).isFalse();
-            assertThat(without).allMatch(n -> n >= range.min() && n <= range.max(),
+            assertThat(without).allMatch(n -> n.compareTo(Num.of(range.min())) >= 0 && n.compareTo(Num.of(range.max())) <= 0,
                     "학년 범위 " + range.min() + "~" + range.max() + " 안");
 
-            List<Integer> with = NumberFactory.generate(NumberPattern.ADD_TRIPLE, range, true, rnd);
+            List<Num> with = NumberFactory.generate(NumberPattern.ADD_TRIPLE, range, true, rnd);
             assertThat(NumberFactory.hasCarry(with)).as("초%d %s", grade, with).isTrue();
         }
     }
@@ -98,7 +98,7 @@ class NumberFactoryTest {
         Random rnd = new Random(11);
         for (int i = 0; i < ROUNDS; i++) {
             for (boolean carry : new boolean[]{true, false}) {
-                List<Integer> n = NumberFactory.generate(NumberPattern.ADD_SMALL_SECOND, range, carry, rnd);
+                List<Num> n = NumberFactory.generate(NumberPattern.ADD_SMALL_SECOND, range, carry, rnd);
                 assertThat(NumberFactory.hasCarry(n)).as("초%d %s 받아올림 %s", grade, n, carry).isEqualTo(carry);
             }
         }
@@ -109,12 +109,12 @@ class NumberFactoryTest {
     void multiplicationStaysInReach() {
         Random rnd = new Random(3);
         for (int i = 0; i < ROUNDS; i++) {
-            List<Integer> low = NumberFactory.generate(NumberPattern.MUL_PAIR, GradeRange.of(2), true, rnd);
-            assertThat(low.get(0)).isBetween(2, 9);
-            assertThat(low.get(1)).isBetween(2, 9);
+            List<Num> low = NumberFactory.generate(NumberPattern.MUL_PAIR, GradeRange.of(2), true, rnd);
+            assertThat(low.get(0)).isBetween(Num.of(2), Num.of(9));
+            assertThat(low.get(1)).isBetween(Num.of(2), Num.of(9));
 
-            List<Integer> high = NumberFactory.generate(NumberPattern.MUL_PAIR, GradeRange.of(6), true, rnd);
-            assertThat(high.get(1)).as("한 묶음의 개수는 구구단 안에 둔다").isBetween(2, 9);
+            List<Num> high = NumberFactory.generate(NumberPattern.MUL_PAIR, GradeRange.of(6), true, rnd);
+            assertThat(high.get(1)).as("한 묶음의 개수는 구구단 안에 둔다").isBetween(Num.of(2), Num.of(9));
         }
     }
 }

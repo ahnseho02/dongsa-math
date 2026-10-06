@@ -52,15 +52,15 @@ public final class WorksheetDtos {
             String plainSentence,
             List<String> tappableWords,
             List<String> cues,
-            List<Integer> numbers,
+            List<String> numbers,
             String expression,
-            int answer,
+            String answer,
             String unit) {
 
         static Item of(int no, GeneratedProblem p) {
             return new Item(no, p.templateCode(), p.category().name(), p.category().label(),
                     p.operation().sign(), p.sentence(), p.plainSentence(), p.tappableWords(),
-                    p.cues(), p.numbers(), p.expression(), p.answer(), p.unit());
+                    p.cues(), p.numberTexts(), p.expression(), p.answerText(), p.unit());
         }
     }
 }

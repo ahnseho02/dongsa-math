@@ -866,7 +866,7 @@ function stepExpression() {
   const problem = state.detail.problems[state.pi];
   const n = problem.numbers.length;
   const sign = problem.steps[1].submittedValue || "?";
-  const shuffled = problem.numbers.slice().sort(() => Math.random() - 0.5);
+  const shuffled = problem.numbers.slice().sort(() => Math.random() - 0.5);   // 3/4, 0.15 처럼 글자다
   const blanks = new Array(n).fill(null);
 
   let html = ask(3, "숫자를 눌러 <b>식</b>을 완성하세요.") + '<div class="expr" id="expr">';
@@ -902,7 +902,7 @@ function stepExpression() {
     if (!chip || chip.dataset.used === "1") return;
     const slot = blanks.indexOf(null);
     if (slot < 0) return;
-    blanks[slot] = { value: Number(chip.dataset.v), k: Number(chip.dataset.k) };
+    blanks[slot] = { value: chip.dataset.v, k: Number(chip.dataset.k) };
     sync();
   };
   $("expr").onclick = (e) => {
@@ -918,22 +918,38 @@ function stepAnswer() {
   const sign = problem.steps[1].submittedValue || "?";
   let typed = "";
 
+  // 분수·소수 문제에서만 점과 빗금을 보여 준다. 초1~3 아이에게는 쓸 일이 없는 칸이다.
+  const needsFraction = problem.numbers.some((n) => n.includes("/"));
+  const needsDecimal = problem.numbers.some((n) => n.includes("."));
+  const extras = needsFraction || needsDecimal;
+
   $("stage").innerHTML = ask(4, `<span class="mono">${esc(problem.numbers.join(" " + sign + " "))}</span> 의 답은?`) +
     `<div class="ansbox"><span class="ansval mono" id="ansval"></span><span class="ansunit">${esc(problem.unit)}</span></div>
+     ${extras ? `<p class="hint" style="text-align:center">${
+        needsFraction ? "분수는 <b>3/4</b> 처럼, " : ""}소수는 <b>1.5</b> 처럼 적어요.</p>` : ""}
      <div class="pad">${[1,2,3,4,5,6,7,8,9].map((n) => `<button class="key" data-d="${n}">${n}</button>`).join("")}
-       <button class="key fn" data-x="del">지우기</button><button class="key" data-d="0">0</button>
-       <button class="key fn" data-x="ok">확인</button></div>`;
+       ${extras
+         ? `<button class="key" data-d=".">.</button><button class="key" data-d="0">0</button>
+            <button class="key" data-d="/">/</button>
+            <button class="key fn" data-x="del" style="grid-column:span 2">지우기</button>
+            <button class="key fn" data-x="ok">확인</button>`
+         : `<button class="key fn" data-x="del">지우기</button><button class="key" data-d="0">0</button>
+            <button class="key fn" data-x="ok">확인</button>`}
+     </div>`;
   $("dock").innerHTML = "";
 
   $("stage").querySelector(".pad").onclick = (e) => {
     const key = e.target.closest(".key");
     if (!key) return;
     if (key.dataset.d !== undefined) {
-      if (typed.length < 7) typed += key.dataset.d;
+      const d = key.dataset.d;
+      // 점과 빗금은 한 번씩만, 맨 앞에는 올 수 없다
+      const dup = (d === "." || d === "/") && (typed.includes(d) || typed.length === 0);
+      if (!dup && typed.length < 9) typed += d;
     } else if (key.dataset.x === "del") {
       typed = typed.slice(0, -1);
     } else if (key.dataset.x === "ok") {
-      if (!typed.length) return;
+      if (!typed.length || typed.endsWith(".") || typed.endsWith("/")) return;
       guard(async () => {
         $("stage").querySelectorAll(".key").forEach((x) => { x.disabled = true; });
         await submitStep({ value: typed });

@@ -14,8 +14,8 @@ public record GeneratedProblem(
         Operation operation,
         String sentence,
         List<String> cues,
-        List<Integer> numbers,
-        int answer,
+        List<Num> numbers,
+        Num answer,
         String unit) {
 
     private static final Pattern TAPPABLE = Pattern.compile("«([^»]+)»");
@@ -31,9 +31,18 @@ public record GeneratedProblem(
         return m.results().map(r -> r.group(1)).toList();
     }
 
-    /** "342 + 458" */
+    /** "342 + 458" 또는 "1/3 + 1/6" */
     public String expression() {
-        return String.join(" " + operation.sign() + " ", numbers.stream().map(String::valueOf).toList());
+        return String.join(" " + operation.sign() + " ", numbers.stream().map(Num::text).toList());
+    }
+
+    /** 화면과 채점에 쓰는 숫자들의 글자 모양. */
+    public List<String> numberTexts() {
+        return numbers.stream().map(Num::text).toList();
+    }
+
+    public String answerText() {
+        return answer.text();
     }
 
     public boolean isCue(String word) {

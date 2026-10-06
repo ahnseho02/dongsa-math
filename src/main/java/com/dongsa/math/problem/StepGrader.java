@@ -28,12 +28,13 @@ public class StepGrader {
         };
     }
 
-    public boolean isCorrect(GeneratedProblem problem, SolveStep step, String value, List<Integer> numbers) {
+    public boolean isCorrect(GeneratedProblem problem, SolveStep step, String value, List<String> numbers) {
         return switch (step) {
             case CUE -> value != null && problem.isCue(value.strip());
             case OPERATION -> problem.operation() == parseOperation(value);
             case EXPRESSION -> expressionMatches(problem, numbers);
-            case ANSWER -> parseInt(value) != null && parseInt(value) == problem.answer();
+            // 0.5 로 써도 1/2 로 써도 값이 같으면 맞다
+            case ANSWER -> problem.answer().equalsValue(Num.parse(value));
         };
     }
 
@@ -41,15 +42,23 @@ public class StepGrader {
      * 뺄셈과 나눗셈은 순서가 답을 바꾸므로 그대로 맞아야 하고,
      * 덧셈과 곱셈은 순서를 따지지 않는다 — 458 + 342 도 맞는 식이다.
      */
-    private boolean expressionMatches(GeneratedProblem problem, List<Integer> submitted) {
+    private boolean expressionMatches(GeneratedProblem problem, List<String> submitted) {
         if (submitted == null || submitted.size() != problem.numbers().size()) {
             return false;
         }
-        if (problem.operation().orderMatters()) {
-            return submitted.equals(problem.numbers());
+        List<Num> parsed = new ArrayList<>(submitted.size());
+        for (String raw : submitted) {
+            Num value = Num.parse(raw);
+            if (value == null) {
+                return false;
+            }
+            parsed.add(value);
         }
-        List<Integer> a = new ArrayList<>(submitted);
-        List<Integer> b = new ArrayList<>(problem.numbers());
+        if (problem.operation().orderMatters()) {
+            return parsed.equals(problem.numbers());
+        }
+        List<Num> a = new ArrayList<>(parsed);
+        List<Num> b = new ArrayList<>(problem.numbers());
         a.sort(null);
         b.sort(null);
         return a.equals(b);
@@ -61,24 +70,15 @@ public class StepGrader {
             case CUE -> String.join(", ", problem.cues());
             case OPERATION -> problem.operation().sign();
             case EXPRESSION -> problem.expression();
-            case ANSWER -> problem.answer() + problem.unit();
+            case ANSWER -> problem.answer().text() + problem.unit();
         };
     }
 
     /** DB 에 남길 값. 나중에 "무엇을 골랐길래 틀렸는지" 보려면 원래 입력이 필요하다. */
-    public String normalize(SolveStep step, String value, List<Integer> numbers) {
+    public String normalize(SolveStep step, String value, List<String> numbers) {
         if (step == SolveStep.EXPRESSION) {
-            return numbers == null ? "" : numbers.stream().map(String::valueOf)
-                    .reduce((x, y) -> x + "," + y).orElse("");
+            return numbers == null ? "" : String.join(",", numbers);
         }
         return value == null ? "" : value.strip();
-    }
-
-    private Integer parseInt(String value) {
-        try {
-            return Integer.valueOf(value.strip());
-        } catch (NumberFormatException | NullPointerException e) {
-            return null;
-        }
     }
 }

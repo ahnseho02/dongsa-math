@@ -13,7 +13,8 @@ public enum ProblemCategory {
     COMPARE("비교하기", 2),
     MULTI("여러 수", 2),
     GROUP("묶어 세기", 2),
-    SHARE("똑같이 나누기", 3);
+    SHARE("똑같이 나누기", 3),
+    RATIO("비와 비율", 6);
 
     private final String label;
     private final int minGrade;
