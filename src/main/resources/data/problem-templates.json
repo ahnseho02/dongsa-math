@@ -606,5 +606,216 @@
       "모두"
     ],
     "pattern": "«가방에» 책이 {a}kg, 공책이 {b}kg, 필통이 {c}kg «들어 있습니다». 가방의 «무게»는 «모두» 몇 kg입니까?"
+  },
+  {
+    "code": "t2_less",
+    "category": "TWO_STEP",
+    "operation": "SUBTRACT",
+    "secondOperation": "ADD",
+    "numberPattern": "LESS_THEN_SUM",
+    "operands": "a,b,a",
+    "unit": "마리",
+    "minGrade": 3,
+    "maxGrade": 5,
+    "cues": [
+      "더 적게",
+      "모두"
+    ],
+    "hard": true,
+    "pattern": "생선 가게에 고등어가 {a}마리 «있습니다». 갈치는 고등어보다 {b}마리 «더 적게» 있습니다. 고등어와 갈치를 «모두» 합하면 몇 마리입니까?"
+  },
+  {
+    "code": "t2_more",
+    "category": "TWO_STEP",
+    "operation": "ADD",
+    "secondOperation": "ADD",
+    "numberPattern": "MORE_THEN_SUM",
+    "operands": "a,b,a",
+    "unit": "m",
+    "minGrade": 3,
+    "maxGrade": 5,
+    "cues": [
+      "더 멀리",
+      "모두"
+    ],
+    "hard": true,
+    "pattern": "어제 {name}{은/는} 운동장을 {a}m «달렸습니다». 오늘은 어제보다 {b}m «더 멀리» 달렸습니다. «이틀 동안» 달린 거리는 «모두» 몇 m입니까?"
+  },
+  {
+    "code": "t2_sub2",
+    "category": "TWO_STEP",
+    "operation": "SUBTRACT",
+    "secondOperation": "SUBTRACT",
+    "numberPattern": "SUB_TWICE",
+    "operands": "a,b,c",
+    "unit": "개",
+    "minGrade": 3,
+    "maxGrade": 5,
+    "cues": [
+      "팔렸고",
+      "더 팔렸습니다",
+      "남은"
+    ],
+    "hard": true,
+    "pattern": "할머니께서 사과 {a}개를 «가져오셨습니다». 오전에 {b}개가 «팔렸고», 오후에 {c}개가 «더 팔렸습니다». 팔고 «남은» 사과는 몇 개입니까?"
+  },
+  {
+    "code": "t2_mul_add",
+    "category": "TWO_STEP",
+    "operation": "MULTIPLY",
+    "secondOperation": "ADD",
+    "numberPattern": "MUL_THEN_ADD",
+    "operands": "a,b,c",
+    "unit": "개",
+    "minGrade": 3,
+    "maxGrade": 4,
+    "cues": [
+      "씩",
+      "모두"
+    ],
+    "hard": true,
+    "pattern": "한 상자에 귤이 {a}개«씩» 들어 있는 상자가 {b}상자 있고, 낱개로 {c}개가 «더» 있습니다. 귤은 «모두» 몇 개입니까?"
+  },
+  {
+    "code": "t2_mul_sub",
+    "category": "TWO_STEP",
+    "operation": "MULTIPLY",
+    "secondOperation": "SUBTRACT",
+    "numberPattern": "MUL_THEN_SUB",
+    "operands": "a,b,c",
+    "unit": "개",
+    "minGrade": 3,
+    "maxGrade": 4,
+    "cues": [
+      "씩",
+      "먹었습니다",
+      "남은"
+    ],
+    "hard": true,
+    "pattern": "사탕이 한 봉지에 {a}개«씩» {b}봉지 있었습니다. 그중 {c}개를 «먹었습니다». «남은» 사탕은 몇 개입니까?"
+  },
+  {
+    "code": "inv_add",
+    "category": "INVERSE",
+    "operation": "SUBTRACT",
+    "numberPattern": "INVERSE_ADD",
+    "unit": "",
+    "minGrade": 3,
+    "maxGrade": 5,
+    "cues": [
+      "어떤 수",
+      "더했더니"
+    ],
+    "hard": true,
+    "pattern": "«어떤 수»에 {b}{을/를} «더했더니» {a}{이/가} 되었습니다. 어떤 수는 «얼마»입니까?"
+  },
+  {
+    "code": "inv_sub",
+    "category": "INVERSE",
+    "operation": "ADD",
+    "numberPattern": "INVERSE_SUB",
+    "unit": "",
+    "minGrade": 3,
+    "maxGrade": 5,
+    "cues": [
+      "어떤 수",
+      "뺐더니"
+    ],
+    "hard": true,
+    "pattern": "«어떤 수»에서 {b}{을/를} «뺐더니» {a}{이/가} 되었습니다. 어떤 수는 «얼마»입니까?"
+  },
+  {
+    "code": "inv_add_story",
+    "category": "INVERSE",
+    "operation": "SUBTRACT",
+    "numberPattern": "INVERSE_ADD",
+    "unit": "개",
+    "minGrade": 3,
+    "maxGrade": 5,
+    "cues": [
+      "처음에",
+      "더 받아서"
+    ],
+    "hard": true,
+    "pattern": "{name}{이/가} 구슬을 몇 개 가지고 있었는데, 친구에게 {b}개를 «더 받아서» {a}개가 되었습니다. «처음에» 가지고 있던 구슬은 «몇 개»입니까?"
+  },
+  {
+    "code": "inv_sub_story",
+    "category": "INVERSE",
+    "operation": "ADD",
+    "numberPattern": "INVERSE_SUB",
+    "unit": "원",
+    "minGrade": 3,
+    "maxGrade": 5,
+    "cues": [
+      "처음에",
+      "쓰고"
+    ],
+    "hard": true,
+    "pattern": "{name}{은/는} 돈을 얼마 가지고 있었는데, {b}원을 «쓰고» 나니 {a}원이 «남았습니다». «처음에» 가지고 있던 돈은 «얼마»입니까?"
+  },
+  {
+    "code": "x_merge_fruit",
+    "category": "MERGE",
+    "operation": "ADD",
+    "numberPattern": "ADD_PAIR_DISTRACTOR",
+    "operands": "a,b",
+    "unit": "개",
+    "minGrade": 2,
+    "maxGrade": 2,
+    "cues": [
+      "과일",
+      "모두"
+    ],
+    "hard": true,
+    "pattern": "{name}{은/는} 사과를 {a}개, 배를 {b}개, 그리고 연필을 {c}자루 «가지고 있습니다». {name}{이/가} 가진 «과일»은 «모두» 몇 개입니까?"
+  },
+  {
+    "code": "x_merge_kids",
+    "category": "MERGE",
+    "operation": "ADD",
+    "numberPattern": "ADD_PAIR_DISTRACTOR",
+    "operands": "a,b",
+    "unit": "명",
+    "minGrade": 2,
+    "maxGrade": 2,
+    "cues": [
+      "노는 학생",
+      "모두"
+    ],
+    "hard": true,
+    "pattern": "놀이터에 남학생 {a}명, 여학생 {b}명이 놀고 있고, 벤치에 어른 {c}명이 «앉아 있습니다». 놀이터에서 «노는 학생»은 «모두» 몇 명입니까?"
+  },
+  {
+    "code": "x_sub_bread",
+    "category": "DECREASE",
+    "operation": "SUBTRACT",
+    "numberPattern": "SUB_PAIR_DISTRACTOR",
+    "operands": "a,b",
+    "unit": "개",
+    "minGrade": 2,
+    "maxGrade": 4,
+    "cues": [
+      "팔렸습니다",
+      "남은 단팥빵"
+    ],
+    "hard": true,
+    "pattern": "빵집에 단팥빵이 {a}개, 식빵이 {c}개 «있었습니다». 단팥빵이 {b}개 «팔렸습니다». «남은 단팥빵»은 몇 개입니까?"
+  },
+  {
+    "code": "x_sub_money",
+    "category": "DECREASE",
+    "operation": "SUBTRACT",
+    "numberPattern": "SUB_PAIR_DISTRACTOR",
+    "operands": "a,b",
+    "unit": "원",
+    "minGrade": 3,
+    "maxGrade": 5,
+    "cues": [
+      "샀습니다",
+      "남은"
+    ],
+    "hard": true,
+    "pattern": "{name}{은/는} {a}원을 가지고 문구점에 가서 {b}원짜리 공책을 «샀습니다». 옆에 있던 {c}원짜리 필통은 «사지 않았습니다». «남은» 돈은 얼마입니까?"
   }
 ]

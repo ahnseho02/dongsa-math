@@ -63,7 +63,8 @@ public class AssignmentService {
         Long fromCode = ReadableCode.decode(req.code());
         long seed = fromCode != null ? fromCode : Math.floorMod(random.nextLong(), ReadableCode.MAX_SEED);
         WorksheetSpec spec = new WorksheetSpec(
-                req.grade(), req.categories(), req.countOrDefault(), req.carryOrDefault(), seed);
+                req.grade(), req.categories(), req.countOrDefault(), req.carryOrDefault(),
+                req.challengeOrDefault(), seed);
 
         // 문제를 실제로 만들 수 있는 조건인지 여기서 확인한다.
         // 아이가 과제를 열었을 때 터지면 늦다.
@@ -173,6 +174,7 @@ public class AssignmentService {
         Classroom classroom = a.getClassroom();
         return new AssignmentSummary(
                 a.getId(), a.getTitle(), a.getGrade(), a.getProblemCount(), a.code(), a.isSameForEveryone(),
+                a.isChallenge(),
                 classroom == null ? null : classroom.getId(),
                 classroom == null ? null : classroom.getName(),
                 studentAssignments.countByAssignmentId(a.getId()),

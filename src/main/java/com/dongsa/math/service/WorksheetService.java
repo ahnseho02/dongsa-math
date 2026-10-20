@@ -22,15 +22,16 @@ public class WorksheetService {
         long seed = fromCode != null ? fromCode : newSeed();
 
         WorksheetSpec spec = new WorksheetSpec(
-                req.grade(), req.categories(), req.countOrDefault(), req.carryOrDefault(), seed);
+                req.grade(), req.categories(), req.countOrDefault(), req.carryOrDefault(),
+                req.challengeOrDefault(), seed);
 
         return WorksheetResponse.of(factory.build(spec));
     }
 
     /** 화면에서 학년을 고르면 그 학년에 낼 수 있는 유형만 보여 주기 위한 정보. */
-    public GradeOptions options(int grade) {
+    public GradeOptions options(int grade, boolean challenge) {
         GradeRange range = GradeRange.of(grade);
-        List<CategoryOption> categories = factory.categoriesFor(grade).stream()
+        List<CategoryOption> categories = factory.categoriesFor(grade, challenge).stream()
                 .map(c -> new CategoryOption(c.name(), c.label(), operationHint(c)))
                 .toList();
         return new GradeOptions(grade, range.label(), categories);
@@ -45,6 +46,8 @@ public class WorksheetService {
             case GROUP -> Operation.MULTIPLY.sign();
             case SHARE -> Operation.DIVIDE.sign();
             case RATIO -> Operation.MULTIPLY.sign();
+            case TWO_STEP -> "두 번";
+            case INVERSE -> "↺";
         };
     }
 

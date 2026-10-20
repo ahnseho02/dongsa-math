@@ -21,8 +21,9 @@ public class WorksheetController {
 
     /** 학년을 고르면 낼 수 있는 유형과 숫자 범위를 알려 준다. */
     @GetMapping("/options")
-    public GradeOptions options(@RequestParam @Min(1) @Max(6) int grade) {
-        return worksheets.options(grade);
+    public GradeOptions options(@RequestParam @Min(1) @Max(6) int grade,
+                                @RequestParam(defaultValue = "false") boolean challenge) {
+        return worksheets.options(grade, challenge);
     }
 
     /**

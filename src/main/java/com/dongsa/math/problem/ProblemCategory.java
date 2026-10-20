@@ -14,7 +14,11 @@ public enum ProblemCategory {
     MULTI("여러 수", 2),
     GROUP("묶어 세기", 2),
     SHARE("똑같이 나누기", 3),
-    RATIO("비와 비율", 6);
+    RATIO("비와 비율", 6),
+    /** 계산을 두 번 해야 답이 나온다. 중간값을 먼저 구하는 것이 핵심. */
+    TWO_STEP("두 단계로", 3),
+    /** "어떤 수에 25를 더했더니 60" — 단서는 더하기인데 식은 빼기다. */
+    INVERSE("거꾸로 생각하기", 3);
 
     private final String label;
     private final int minGrade;

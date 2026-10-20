@@ -157,7 +157,9 @@ public class SolveService {
                     s == null ? null : grader.correctValueOf(problem, step)));
         }
         return new MyProblem(no, problem.category().label(), problem.sentence(),
-                problem.tappableWords(), problem.numberTexts(), problem.unit(), steps);
+                problem.tappableWords(), problem.shownNumberTexts(),
+                problem.numbers().size(), problem.operations().size(),
+                problem.unit(), steps);
     }
 
     private MyAssignment toMyAssignment(StudentAssignment sa) {

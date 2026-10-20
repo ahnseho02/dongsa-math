@@ -40,7 +40,56 @@ public final class NumberFactory {
             case FRACTION_MUL -> List.of(properFraction(rnd), properFraction(rnd));
             case FRACTION_DIV -> fractionDivide(rnd);
             case PERCENT_OF -> percentOf(rnd);
+            case LESS_THEN_SUM, MORE_THEN_SUM -> addSmallSecond(grade, carry, rnd);
+            case SUB_TWICE -> subTwice(grade, rnd);
+            case MUL_THEN_ADD -> mulThenAdd(grade, rnd);
+            case MUL_THEN_SUB -> mulThenSub(grade, rnd);
+            case INVERSE_ADD -> subPair(grade, carry, rnd);     // s − b 가 식이므로 뺄셈 숫자와 같다
+            case INVERSE_SUB -> addPair(grade, carry, rnd);     // d + b 가 식
+            case ADD_PAIR_DISTRACTOR -> withDistractor(addPair(grade, carry, rnd), grade, rnd);
+            case SUB_PAIR_DISTRACTOR -> withDistractor(subPair(grade, carry, rnd), grade, rnd);
         };
+    }
+
+    // ── 도전 문제 ──
+
+    /** a 에서 b 도 빼고 c 도 뺀다. 두 번 빼도 남게 만든다. */
+    private static List<Num> subTwice(GradeRange g, Random rnd) {
+        for (int i = 0; i < MAX_TRIES; i++) {
+            int a = between(g.min() + 2, g.max(), rnd);
+            int b = between(1, a / 2, rnd);
+            int c = between(1, a / 2, rnd);
+            if (b + c < a && b >= Math.max(1, g.min() / 10) && c >= Math.max(1, g.min() / 10)) {
+                return ints(a, b, c);
+            }
+        }
+        return ints(g.max(), g.max() / 3, g.max() / 3);
+    }
+
+    /** n 개씩 k 묶음에 낱개 m 을 더한다. 곱은 학년에 맞게, 낱개는 한 묶음보다 적게. */
+    private static List<Num> mulThenAdd(GradeRange g, Random rnd) {
+        int perBox = between(2, 9, rnd);
+        int boxes = between(2, g.grade() <= 3 ? 9 : 19, rnd);
+        int loose = between(1, perBox - 1 < 1 ? 1 : perBox - 1, rnd);
+        return ints(perBox, boxes, loose);
+    }
+
+    private static List<Num> mulThenSub(GradeRange g, Random rnd) {
+        int perBox = between(2, 9, rnd);
+        int boxes = between(2, g.grade() <= 3 ? 9 : 19, rnd);
+        int eaten = between(1, perBox * boxes - 1, rnd);
+        return ints(perBox, boxes, eaten);
+    }
+
+    /** 식에 안 쓰는 세 번째 수를 문장에 섞는다. 같은 범위라 눈으로는 구분이 안 된다. */
+    private static List<Num> withDistractor(List<Num> pair, GradeRange g, Random rnd) {
+        List<Num> out = new java.util.ArrayList<>(pair);
+        Num extra;
+        do {
+            extra = Num.of(between(g.min(), g.max(), rnd));
+        } while (pair.contains(extra));
+        out.add(extra);
+        return out;
     }
 
     // ── 소수 (초4~6) ──

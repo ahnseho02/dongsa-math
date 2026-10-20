@@ -32,7 +32,7 @@ public class WorksheetFactory {
 
     @Transactional(readOnly = true)
     public Worksheet build(WorksheetSpec spec) {
-        List<ProblemTemplate> pool = templates.findUsable(spec.categories(), spec.grade());
+        List<ProblemTemplate> pool = templates.findUsable(spec.categories(), spec.grade(), spec.challenge());
         if (pool.isEmpty()) {
             throw new ApiException(ErrorCode.NO_TEMPLATE_FOR_GRADE);
         }
@@ -64,7 +64,12 @@ public class WorksheetFactory {
     /** 그 학년에 낼 수 있는 유형. 화면에서 고를 수 없는 유형을 보여 주지 않기 위해 쓴다. */
     @Transactional(readOnly = true)
     public List<ProblemCategory> categoriesFor(int grade) {
-        return templates.findCategoriesForGrade(grade).stream()
+        return categoriesFor(grade, false);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ProblemCategory> categoriesFor(int grade, boolean challenge) {
+        return templates.findCategoriesForGrade(grade, challenge).stream()
                 .sorted()
                 .toList();
     }

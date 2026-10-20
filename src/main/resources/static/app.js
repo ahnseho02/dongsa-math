@@ -523,7 +523,7 @@ function teacherAssignments() {
     const done = a.studentCount ? Math.round(a.completedCount * 100 / a.studentCount) : 0;
     return `<button class="item" data-assignment="${a.id}">
         <span><span class="t">${esc(a.title)}</span>
-          <span class="s">초${a.grade}학년 · ${a.problemCount}문제${a.classroomName ? " · " + esc(a.classroomName) : ""}</span></span>
+          <span class="s">초${a.grade}학년 · ${a.problemCount}문제${a.challenge ? " · <b>도전</b>" : ""}${a.classroomName ? " · " + esc(a.classroomName) : ""}</span></span>
         <span class="r">${a.closed ? '<span class="badge closed">마감</span>'
           : `<span class="badge ${done === 100 ? "done" : "doing"}">${a.completedCount}/${a.studentCount} 완료</span>`}</span>
       </button>`;
@@ -540,13 +540,13 @@ function teacherAssignments() {
   $("new").onclick = () => guard(async () => {
     const [students, options] = await Promise.all([
       api("GET", "/api/students"),
-      api("GET", "/api/worksheets/options?grade=3")
+      api("GET", "/api/worksheets/options?grade=3&challenge=false")
     ]);
     go({
       screen: "teacher", tab: "newAssignment", students, options,
       form: {
         grade: 3, categories: options.categories.map((c) => c.name).slice(0, 4),
-        count: 5, carry: true, sameForEveryone: false,
+        count: 5, carry: true, challenge: false, sameForEveryone: false,
         studentIds: students.filter((s) => s.active).map((s) => s.id)
       }
     });
@@ -585,6 +585,13 @@ function teacherNewAssignment() {
     <div class="sec"><span class="eyebrow">문항 수</span>
       <div class="chips" id="counts">${[3,5,10,20].map((n) =>
         `<button type="button" class="chip" data-count="${n}" aria-pressed="${form.count === n}">${n}문항</button>`).join("")}</div></div>
+
+    <div class="sec"><span class="eyebrow">난이도</span>
+      <div class="chips" id="level">
+        <button type="button" class="chip" data-level="false" aria-pressed="${!form.challenge}">기본</button>
+        <button type="button" class="chip" data-level="true" aria-pressed="${form.challenge}">도전</button></div>
+      <p class="hint">도전을 켜면 <b>두 단계로 푸는 문제</b>, <b>거꾸로 생각하는 문제</b>가 열리고,
+        식에 안 쓰는 <b>함정 숫자</b>가 섞인 문제가 들어갑니다. 계산보다 읽기를 시험합니다.</p></div>
 
     <div class="sec"><span class="eyebrow">받아올림 · 받아내림</span>
       <div class="chips" id="carry">
@@ -633,13 +640,27 @@ function teacherNewAssignment() {
   preset("pick-add", (n) => ["MERGE", "INCREASE", "MULTI", "COMPARE"].includes(n));
   preset("pick-sub", (n) => ["DECREASE", "COMPARE"].includes(n));
 
-  // 학년이 바뀌면 낼 수 있는 유형도 바뀐다 — 서버에 다시 물어본다
+  // 학년이나 난이도가 바뀌면 낼 수 있는 유형도 바뀐다 — 서버에 다시 물어본다
+  const refetch = async (grade, challenge) => {
+    const options2 = await api("GET", `/api/worksheets/options?grade=${grade}&challenge=${challenge}`);
+    const allowed = options2.categories.map((c) => c.name);
+    form.grade = grade;
+    form.challenge = challenge;
+    form.categories = form.categories.filter((c) => allowed.includes(c));
+    if (!form.categories.length) form.categories = allowed.slice(0, 4);
+    form.title = $("a-title").value;
+    go({ ...state, options: options2 });
+  };
+  $("level").onclick = (e) => {
+    const b = e.target.closest("[data-level]");
+    if (b) guard(() => refetch(form.grade, b.dataset.level === "true"));
+  };
   $("grades").onclick = (e) => {
     const b = e.target.closest("[data-grade]");
     if (!b) return;
     guard(async () => {
       const grade = Number(b.dataset.grade);
-      const options2 = await api("GET", "/api/worksheets/options?grade=" + grade);
+      const options2 = await api("GET", `/api/worksheets/options?grade=${grade}&challenge=${form.challenge}`);
       const allowed = options2.categories.map((c) => c.name);
       form.grade = grade;
       form.categories = form.categories.filter((c) => allowed.includes(c));
@@ -660,6 +681,7 @@ function teacherNewAssignment() {
       categories: form.categories,
       count: form.count,
       carry: form.carry,
+      challenge: form.challenge,
       sameForEveryone: form.sameForEveryone,
       studentIds: form.studentIds
     });
@@ -700,7 +722,7 @@ function teacherAssignmentDetail() {
   $("main").innerHTML = `
     <div class="sec" style="margin-top:8px">
       <h1 style="font-size:20px;font-weight:900">${esc(a.title)}</h1>
-      <p class="lead" style="margin-top:6px">초${a.grade}학년 · ${a.problemCount}문제 ·
+      <p class="lead" style="margin-top:6px">초${a.grade}학년 · ${a.problemCount}문제${a.challenge ? " · <b>도전</b>" : ""} ·
         ${a.sameForEveryone ? "모두 같은 문제" : "아이마다 다른 문제"} ·
         학습지 코드 <span class="mono">${esc(a.code)}</span>
         ${a.closed ? ' · <b style="color:var(--bad)">마감됨</b>' : ""}</p>
@@ -850,33 +872,66 @@ function stepCue() {
 }
 
 function stepOperation() {
-  $("stage").innerHTML = ask(2, "그럼 어떤 <b>연산</b>일까요?") +
-    `<div class="ops">${OPS.map((o) => `<button class="op-btn" data-o="${o}">${o}</button>`).join("")}</div>`;
+  const problem = state.detail.problems[state.pi];
+  const twoStep = problem.operationCount === 2;
+  const picked = [null, null];
+
+  const row = (idx, label) => `
+    <p class="hint" style="margin:${idx ? "14px" : "0"} 0 6px"><b>${label}</b></p>
+    <div class="ops" data-row="${idx}">${OPS.map((o) =>
+      `<button class="op-btn" data-o="${o}" data-row="${idx}">${o}</button>`).join("")}</div>`;
+
+  $("stage").innerHTML = twoStep
+    ? ask(2, "계산을 <b>두 번</b> 해야 해요. 어떤 순서일까요?") + row(0, "먼저") + row(1, "그다음")
+    : ask(2, "그럼 어떤 <b>연산</b>일까요?") + `<div class="ops">${OPS.map((o) =>
+        `<button class="op-btn" data-o="${o}" data-row="0">${o}</button>`).join("")}</div>`;
   $("dock").innerHTML = "";
+
   $("stage").querySelectorAll(".op-btn").forEach((b) => {
-    b.onclick = () => guard(async () => {
-      $("stage").querySelectorAll(".op-btn").forEach((x) => { x.disabled = true; });
-      b.setAttribute("aria-pressed", "true");
-      await submitStep({ value: b.dataset.o });
-    });
+    b.onclick = () => {
+      const r = Number(b.dataset.row);
+      picked[r] = b.dataset.o;
+      $("stage").querySelectorAll(`.op-btn[data-row="${r}"]`).forEach((x) =>
+        x.setAttribute("aria-pressed", String(x === b)));
+      const done = twoStep ? (picked[0] && picked[1]) : picked[0];
+      if (!done) return;
+      guard(async () => {
+        $("stage").querySelectorAll(".op-btn").forEach((x) => { x.disabled = true; });
+        // 두 단계면 "−,+" 처럼 순서대로 묶어 보낸다
+        await submitStep({ value: twoStep ? picked[0] + "," + picked[1] : picked[0] });
+      });
+    };
   });
 }
 
 function stepExpression() {
   const problem = state.detail.problems[state.pi];
-  const n = problem.numbers.length;
-  const sign = problem.steps[1].submittedValue || "?";
-  const shuffled = problem.numbers.slice().sort(() => Math.random() - 0.5);   // 3/4, 0.15 처럼 글자다
+  const n = problem.operandCount;                       // 식에 들어갈 칸 수 (함정은 빠진다)
+  const signs = (problem.steps[1].submittedValue || "?").split(",");
+  const twoStep = problem.operationCount === 2;
+  // 칩에는 식에 쓰는 수와 함정 숫자가 섞여 있다. 골라내는 것이 문제의 일부다.
+  const shuffled = problem.numbers.slice().sort(() => Math.random() - 0.5);
   const blanks = new Array(n).fill(null);
 
-  let html = ask(3, "숫자를 눌러 <b>식</b>을 완성하세요.") + '<div class="expr" id="expr">';
-  for (let i = 0; i < n; i++) {
-    html += `<button class="blank" data-i="${i}"></button>`;
-    if (i < n - 1) html += `<span class="sign">${esc(sign)}</span>`;
+  const hint = problem.numbers.length > n
+    ? "문장에 나온 수를 <b>다 쓰는 건 아니에요</b>. 필요한 것만 고르세요."
+    : (twoStep ? "괄호 안을 먼저 계산해요." : "숫자를 눌러 <b>식</b>을 완성하세요.");
+
+  let html = ask(3, hint) + '<div class="expr" id="expr">';
+  if (twoStep) {
+    html += `<span class="sign">(</span><button class="blank" data-i="0"></button>
+             <span class="sign">${esc(signs[0])}</span><button class="blank" data-i="1"></button>
+             <span class="sign">)</span><span class="sign">${esc(signs[1] || "?")}</span>
+             <button class="blank" data-i="2"></button>`;
+  } else {
+    for (let i = 0; i < n; i++) {
+      html += `<button class="blank" data-i="${i}"></button>`;
+      if (i < n - 1) html += `<span class="sign">${esc(signs[0])}</span>`;
+    }
   }
   html += `<span class="sign">=</span><span class="blank" style="border-style:dotted;color:var(--ink3)">?</span></div>
     <div class="bank" id="bank">${shuffled.map((v, i) =>
-      `<button class="numchip" data-v="${v}" data-k="${i}">${v}</button>`).join("")}</div>`;
+      `<button class="numchip" data-v="${esc(v)}" data-k="${i}">${esc(v)}</button>`).join("")}</div>`;
   $("stage").innerHTML = html;
   $("dock").innerHTML = "";
 
@@ -915,7 +970,9 @@ function stepExpression() {
 
 function stepAnswer() {
   const problem = state.detail.problems[state.pi];
-  const sign = problem.steps[1].submittedValue || "?";
+  // 식은 서버가 돌려준 정답 식을 쓴다 — 함정 숫자가 빠지고 괄호가 붙은 모양이다
+  const expression = problem.steps[2].correctValue
+    || problem.numbers.join(" " + (problem.steps[1].submittedValue || "?") + " ");
   let typed = "";
 
   // 분수·소수 문제에서만 점과 빗금을 보여 준다. 초1~3 아이에게는 쓸 일이 없는 칸이다.
@@ -923,7 +980,7 @@ function stepAnswer() {
   const needsDecimal = problem.numbers.some((n) => n.includes("."));
   const extras = needsFraction || needsDecimal;
 
-  $("stage").innerHTML = ask(4, `<span class="mono">${esc(problem.numbers.join(" " + sign + " "))}</span> 의 답은?`) +
+  $("stage").innerHTML = ask(4, `<span class="mono">${esc(expression)}</span> 의 답은?`) +
     `<div class="ansbox"><span class="ansval mono" id="ansval"></span><span class="ansunit">${esc(problem.unit)}</span></div>
      ${extras ? `<p class="hint" style="text-align:center">${
         needsFraction ? "분수는 <b>3/4</b> 처럼, " : ""}소수는 <b>1.5</b> 처럼 적어요.</p>` : ""}

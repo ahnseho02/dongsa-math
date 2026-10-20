@@ -70,6 +70,10 @@ public class Assignment extends BaseTimeEntity {
     @Column(name = "same_for_everyone", nullable = false)
     private boolean sameForEveryone;
 
+    /** 도전 문제(두 단계·거꾸로·함정 숫자)를 섞을지. */
+    @Column(nullable = false)
+    private boolean challenge;
+
     @Column(name = "due_at")
     private Instant dueAt;
 
@@ -87,13 +91,14 @@ public class Assignment extends BaseTimeEntity {
         this.categories = new ArrayList<>(spec.categories());
         this.problemCount = spec.count();
         this.carry = spec.carry();
+        this.challenge = spec.challenge();
         this.seed = spec.seed();
         this.sameForEveryone = sameForEveryone;
         this.dueAt = dueAt;
     }
 
     public WorksheetSpec specWithSeed(long studentSeed) {
-        return new WorksheetSpec(grade, categories, problemCount, carry, studentSeed);
+        return new WorksheetSpec(grade, categories, problemCount, carry, challenge, studentSeed);
     }
 
     /**

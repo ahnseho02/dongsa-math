@@ -50,5 +50,32 @@ public enum NumberPattern {
     // ── 초6: 비율 ──
 
     /** 전체의 몇 퍼센트. 식은 (전체) × (소수로 고친 비율) 이 된다. */
-    PERCENT_OF
+    PERCENT_OF,
+
+    // ── 도전: 두 단계 ──
+
+    /** a 와 b(작은 수). "갈치는 고등어보다 b 적다, 둘을 합하면" → (a − b) + a. 슬롯 a,b,a */
+    LESS_THEN_SUM,
+    /** "오늘은 어제보다 b 더, 이틀 동안" → (a + b) + a. 슬롯 a,b,a */
+    MORE_THEN_SUM,
+    /** a 에서 b 를 빼고 또 c 를 뺀다. a > b + c. */
+    SUB_TWICE,
+    /** (n 개씩 k 묶음) + 낱개 m */
+    MUL_THEN_ADD,
+    /** (n 개씩 k 묶음) − 먹은 m */
+    MUL_THEN_SUB,
+
+    // ── 도전: 거꾸로 ──
+
+    /** 어떤 수 + b = s. 문장엔 s 와 b, 식은 s − b. */
+    INVERSE_ADD,
+    /** 어떤 수 − b = d. 문장엔 d 와 b, 식은 d + b. */
+    INVERSE_SUB,
+
+    // ── 도전: 함정 숫자 ──
+
+    /** 덧셈 두 수 + 식에 안 쓰는 c. */
+    ADD_PAIR_DISTRACTOR,
+    /** 뺄셈 두 수 + 식에 안 쓰는 c. */
+    SUB_PAIR_DISTRACTOR
 }

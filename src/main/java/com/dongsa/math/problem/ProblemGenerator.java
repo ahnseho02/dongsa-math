@@ -11,40 +11,62 @@ import java.util.Random;
 public class ProblemGenerator {
 
     public GeneratedProblem generate(ProblemTemplate template, GradeRange grade, boolean carry, Random rnd) {
-        List<Num> numbers = new ArrayList<>(
+        // 슬롯 값 a, b, c — 문장에 들어가는 수
+        List<Num> slots = new ArrayList<>(
                 NumberFactory.generate(template.getNumberPattern(), grade, carry, rnd));
 
         // "한 권에 900원" 처럼 값을 100 단위로 떨어뜨려야 자연스러운 문장이 있다
-        if (template.getSecondScale() != 1 && numbers.size() > 1) {
-            numbers.set(1, numbers.get(1).times(Num.of(template.getSecondScale())));
+        if (template.getSecondScale() != 1 && slots.size() > 1) {
+            slots.set(1, slots.get(1).times(Num.of(template.getSecondScale())));
+        }
+
+        // 식에 들어가는 수는 슬롯 중에서 템플릿이 고른 것. 같은 슬롯을 두 번 쓸 수도 있다.
+        List<Integer> indexes = template.operandSlotIndexes();
+        List<Num> operands = new ArrayList<>(indexes.size());
+        for (int index : indexes) {
+            operands.add(slots.get(index));
+        }
+        // 식에 안 쓰는 슬롯은 함정 숫자다
+        List<Num> distractors = new ArrayList<>();
+        for (int i = 0; i < slots.size(); i++) {
+            if (!indexes.contains(i)) {
+                distractors.add(slots.get(i));
+            }
         }
 
         String name = NamePool.pick(rnd);
         String name2 = template.isNeedsTwoNames() ? NamePool.pickOther(name, rnd) : null;
 
-        String sentence = Josa.resolve(fillSlots(template.getPattern(), numbers, name, name2));
-        Num answer = template.getOperation().apply(numbers);
+        String sentence = Josa.resolve(fillSlots(template.getPattern(), slots, name, name2));
+        Num answer = compute(template.operations(), operands);
 
         return new GeneratedProblem(
-                template.getCode(), template.getCategory(), template.getOperation(),
-                sentence, List.copyOf(template.getCues()), List.copyOf(numbers),
-                answer, template.getUnit());
+                template.getCode(), template.getCategory(), template.operations(),
+                sentence, List.copyOf(template.getCues()),
+                List.copyOf(operands), List.copyOf(distractors),
+                answer, template.getUnit(), template.isHard());
     }
 
-    private String fillSlots(String pattern, List<Num> numbers, String name, String name2) {
+    /** 한 단계면 그대로, 두 단계면 (첫째 ∘ 둘째) 를 셋째와 묶는다. */
+    static Num compute(List<Operation> operations, List<Num> operands) {
+        if (operations.size() == 1) {
+            return operations.get(0).apply(operands);
+        }
+        Num first = operations.get(0).apply(operands.subList(0, 2));
+        return operations.get(1).apply(List.of(first, operands.get(2)));
+    }
+
+    private String fillSlots(String pattern, List<Num> slots, String name, String name2) {
         String out = pattern;
-        // {name2} 를 먼저 바꾼다 — {name} 이 {name2} 의 앞부분과 겹치기 때문이다
         if (name2 != null) {
             out = out.replace("{name2}", name2);
         }
         out = out.replace("{name}", name);
         String[] keys = {"{a}", "{b}", "{c}"};
         String[] percentKeys = {"{a%}", "{b%}", "{c%}"};
-        for (int i = 0; i < numbers.size() && i < keys.length; i++) {
-            // 비율 문제는 0.15 가 아니라 "15 퍼센트" 로 읽어야 자연스럽다.
-            // 식에는 0.15 가 그대로 쓰이고, 문장에만 15 로 나온다 — 그 연결이 초6 학습 목표다.
-            out = out.replace(percentKeys[i], numbers.get(i).times(Num.of(100)).text());
-            out = out.replace(keys[i], numbers.get(i).text());
+        for (int i = 0; i < slots.size() && i < keys.length; i++) {
+            out = out.replace(percentKeys[i], slots.get(i).times(Num.of(100)).text());
+            out = out.replace(keys[i], slots.get(i).text());
         }
         return out;
     }

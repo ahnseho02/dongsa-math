@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -13,9 +14,15 @@ import java.util.List;
  *
  * pattern 표기:
  *   {name} {name2}  — 아이 이름이 들어간다
- *   {a} {b} {c}     — 숫자가 들어간다
+ *   {a} {b} {c}     — 숫자가 들어간다 ({b%} 는 퍼센트로)
  *   {은/는}          — 앞 글자를 보고 조사를 고른다
  *   «모두»           — 아이가 눌러서 고를 수 있는 단어. 그중 cues 에 든 것이 정답
+ *
+ * operandSlots 는 식에 들어가는 슬롯을 순서대로 적은 것이다.
+ *   "a,b"    보통
+ *   "a,b,c"  세 수
+ *   "a,b,a"  두 단계 문제에서 같은 수를 두 번 쓸 때 (고등어 420 − 135, 그리고 + 420)
+ * 슬롯 중 여기 빠진 것은 문장에만 나오는 함정 숫자다.
  */
 @Entity
 @Getter
@@ -28,7 +35,6 @@ public class ProblemTemplate {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    /** 사람이 알아보는 짧은 이름. 시드를 고정해도 템플릿을 알아볼 수 있게 둔다. */
     @Column(nullable = false, length = 20)
     private String code;
 
@@ -40,6 +46,11 @@ public class ProblemTemplate {
     @Column(nullable = false, length = 20)
     private Operation operation;
 
+    /** 두 단계 문제의 두 번째 연산. 한 단계면 비어 있다. */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "second_operation", length = 20)
+    private Operation secondOperation;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "number_pattern", nullable = false, length = 20)
     private NumberPattern numberPattern;
@@ -47,18 +58,15 @@ public class ProblemTemplate {
     @Column(nullable = false, length = 600)
     private String pattern;
 
-    /** 답의 단위. "개", "쪽", "원" */
     @Column(nullable = false, length = 10)
     private String unit;
 
-    /** 이 문장이 자연스러운 학년 범위. "색 테이프 41273cm" 같은 문장을 막는다. */
     @Column(name = "min_grade", nullable = false)
     private int minGrade;
 
     @Column(name = "max_grade", nullable = false)
     private int maxGrade;
 
-    /** 연산을 알려 주는 단서 단어. 여러 개면 아무거나 맞으면 정답. */
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "problem_template_cue",
             joinColumns = @JoinColumn(name = "template_id"),
@@ -66,20 +74,27 @@ public class ProblemTemplate {
     @Column(name = "word", nullable = false, length = 40)
     private List<String> cues = new ArrayList<>();
 
-    /** 두 번째 숫자에 곱할 값. "한 권에 900원" 처럼 100 단위로 떨어뜨릴 때만 쓴다. */
     @Column(name = "second_scale", nullable = false)
     private int secondScale = 1;
 
-    /** 이름이 둘 필요한 문장인지. "민우보다 서윤이가 더 많이" */
     @Column(name = "needs_two_names", nullable = false)
     private boolean needsTwoNames;
 
-    public ProblemTemplate(String code, ProblemCategory category, Operation operation, NumberPattern numberPattern,
-                           String pattern, String unit, int minGrade, int maxGrade,
-                           List<String> cues, int secondScale, boolean needsTwoNames) {
+    @Column(name = "operand_slots", nullable = false, length = 20)
+    private String operandSlots = "a,b";
+
+    /** 기본 학습지에는 안 나오고 '도전' 을 켰을 때만 나온다. */
+    @Column(nullable = false)
+    private boolean hard;
+
+    public ProblemTemplate(String code, ProblemCategory category, Operation operation, Operation secondOperation,
+                           NumberPattern numberPattern, String pattern, String unit, int minGrade, int maxGrade,
+                           List<String> cues, int secondScale, boolean needsTwoNames,
+                           String operandSlots, boolean hard) {
         this.code = code;
         this.category = category;
         this.operation = operation;
+        this.secondOperation = secondOperation;
         this.numberPattern = numberPattern;
         this.pattern = pattern;
         this.unit = unit;
@@ -88,6 +103,19 @@ public class ProblemTemplate {
         this.cues = new ArrayList<>(cues);
         this.secondScale = secondScale;
         this.needsTwoNames = needsTwoNames;
+        this.operandSlots = operandSlots;
+        this.hard = hard;
+    }
+
+    public List<Operation> operations() {
+        return secondOperation == null ? List.of(operation) : List.of(operation, secondOperation);
+    }
+
+    /** "a,b,a" → [0, 1, 0] */
+    public List<Integer> operandSlotIndexes() {
+        return Arrays.stream(operandSlots.split(","))
+                .map(s -> s.strip().charAt(0) - 'a')
+                .toList();
     }
 
     /** JSON 의 내용이 바뀌면 그대로 따라간다. JSON 이 문장의 원본이다. */
@@ -97,16 +125,20 @@ public class ProblemTemplate {
                 || !List.copyOf(cues).equals(List.copyOf(other.cues))
                 || category != other.category
                 || operation != other.operation
+                || secondOperation != other.secondOperation
                 || numberPattern != other.numberPattern
                 || minGrade != other.minGrade
                 || maxGrade != other.maxGrade
                 || secondScale != other.secondScale
-                || needsTwoNames != other.needsTwoNames;
+                || needsTwoNames != other.needsTwoNames
+                || !operandSlots.equals(other.operandSlots)
+                || hard != other.hard;
         if (!changed) {
             return false;
         }
         this.category = other.category;
         this.operation = other.operation;
+        this.secondOperation = other.secondOperation;
         this.numberPattern = other.numberPattern;
         this.pattern = other.pattern;
         this.unit = other.unit;
@@ -116,6 +148,8 @@ public class ProblemTemplate {
         this.cues.addAll(other.cues);
         this.secondScale = other.secondScale;
         this.needsTwoNames = other.needsTwoNames;
+        this.operandSlots = other.operandSlots;
+        this.hard = other.hard;
         return true;
     }
 

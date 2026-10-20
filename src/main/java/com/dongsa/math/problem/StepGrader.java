@@ -31,16 +31,35 @@ public class StepGrader {
     public boolean isCorrect(GeneratedProblem problem, SolveStep step, String value, List<String> numbers) {
         return switch (step) {
             case CUE -> value != null && problem.isCue(value.strip());
-            case OPERATION -> problem.operation() == parseOperation(value);
+            case OPERATION -> operationsMatch(problem, value);
             case EXPRESSION -> expressionMatches(problem, numbers);
             // 0.5 로 써도 1/2 로 써도 값이 같으면 맞다
             case ANSWER -> problem.answer().equalsValue(Num.parse(value));
         };
     }
 
+    /** 한 단계면 기호 하나, 두 단계면 "−,+" 처럼 순서대로 둘. 순서가 다르면 틀린 것이다. */
+    private boolean operationsMatch(GeneratedProblem problem, String value) {
+        if (value == null) {
+            return false;
+        }
+        String[] parts = value.split(",");
+        if (parts.length != problem.operations().size()) {
+            return false;
+        }
+        for (int i = 0; i < parts.length; i++) {
+            if (parseOperation(parts[i]) != problem.operations().get(i)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     /**
      * 뺄셈과 나눗셈은 순서가 답을 바꾸므로 그대로 맞아야 하고,
      * 덧셈과 곱셈은 순서를 따지지 않는다 — 458 + 342 도 맞는 식이다.
+     * 두 단계 문제는 괄호 안과 밖이 정해져 있으므로 항상 순서대로 맞아야 한다.
+     * 함정 숫자를 식에 넣으면 개수부터 안 맞아 틀린다.
      */
     private boolean expressionMatches(GeneratedProblem problem, List<String> submitted) {
         if (submitted == null || submitted.size() != problem.numbers().size()) {
@@ -54,7 +73,7 @@ public class StepGrader {
             }
             parsed.add(value);
         }
-        if (problem.operation().orderMatters()) {
+        if (problem.isTwoStep() || problem.operation().orderMatters()) {
             return parsed.equals(problem.numbers());
         }
         List<Num> a = new ArrayList<>(parsed);
@@ -68,7 +87,9 @@ public class StepGrader {
     public String correctValueOf(GeneratedProblem problem, SolveStep step) {
         return switch (step) {
             case CUE -> String.join(", ", problem.cues());
-            case OPERATION -> problem.operation().sign();
+            case OPERATION -> problem.isTwoStep()
+                    ? "먼저 " + problem.operations().get(0).sign() + ", 그다음 " + problem.operations().get(1).sign()
+                    : problem.operation().sign();
             case EXPRESSION -> problem.expression();
             case ANSWER -> problem.answer().text() + problem.unit();
         };

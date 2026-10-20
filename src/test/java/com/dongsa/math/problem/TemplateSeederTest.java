@@ -32,10 +32,11 @@ class TemplateSeederTest {
         String original = template.getPattern();
 
         ProblemTemplate incoming = new ProblemTemplate(
-                template.getCode(), template.getCategory(), template.getOperation(),
+                template.getCode(), template.getCategory(), template.getOperation(), template.getSecondOperation(),
                 template.getNumberPattern(), "{name}{은/는} 바뀐 문장입니다.", template.getUnit(),
                 template.getMinGrade(), template.getMaxGrade(), template.getCues(),
-                template.getSecondScale(), template.isNeedsTwoNames());
+                template.getSecondScale(), template.isNeedsTwoNames(),
+                template.getOperandSlots(), template.isHard());
 
         assertThat(template.syncFrom(incoming)).isTrue();
         assertThat(template.getPattern()).isEqualTo("{name}{은/는} 바뀐 문장입니다.");
@@ -44,9 +45,10 @@ class TemplateSeederTest {
         assertThat(template.syncFrom(incoming)).isFalse();
 
         template.syncFrom(new ProblemTemplate(
-                template.getCode(), template.getCategory(), template.getOperation(),
+                template.getCode(), template.getCategory(), template.getOperation(), template.getSecondOperation(),
                 template.getNumberPattern(), original, template.getUnit(),
                 template.getMinGrade(), template.getMaxGrade(), template.getCues(),
-                template.getSecondScale(), template.isNeedsTwoNames()));
+                template.getSecondScale(), template.isNeedsTwoNames(),
+                template.getOperandSlots(), template.isHard()));
     }
 }

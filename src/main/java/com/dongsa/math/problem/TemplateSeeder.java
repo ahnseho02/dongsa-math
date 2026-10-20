@@ -72,18 +72,29 @@ public class TemplateSeeder implements ApplicationRunner {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    record Row(String code, ProblemCategory category, Operation operation, NumberPattern numberPattern,
-               String pattern, String unit, Integer minGrade, Integer maxGrade,
-               List<String> cues, Integer secondScale, Boolean needsTwoNames) {
+    record Row(String code, ProblemCategory category, Operation operation, Operation secondOperation,
+               NumberPattern numberPattern, String pattern, String unit, Integer minGrade, Integer maxGrade,
+               List<String> cues, Integer secondScale, Boolean needsTwoNames,
+               String operands, Boolean hard) {
 
         ProblemTemplate toEntity() {
             return new ProblemTemplate(
-                    code, category, operation, numberPattern, pattern, unit,
+                    code, category, operation, secondOperation, numberPattern, pattern, unit,
                     minGrade == null ? 1 : minGrade,
                     maxGrade == null ? 6 : maxGrade,
                     cues == null ? List.of() : cues,
                     secondScale == null ? 1 : secondScale,
-                    Boolean.TRUE.equals(needsTwoNames));
+                    Boolean.TRUE.equals(needsTwoNames),
+                    operands != null ? operands : defaultOperands(numberPattern),
+                    Boolean.TRUE.equals(hard));
+        }
+
+        /** 세 수 패턴이면 a,b,c, 아니면 a,b. 템플릿에 적어 두면 그쪽이 우선이다. */
+        private static String defaultOperands(NumberPattern pattern) {
+            return switch (pattern) {
+                case ADD_TRIPLE, DECIMAL_ADD_TRIPLE -> "a,b,c";
+                default -> "a,b";
+            };
         }
     }
 }

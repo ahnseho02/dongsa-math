@@ -20,11 +20,14 @@ public final class AssignmentDtos {
             @NotNull @Size(min = 1) List<ProblemCategory> categories,
             @Min(1) @Max(50) Integer count,
             Boolean carry,
+            Boolean challenge,
             String code,
             Long classroomId,
             List<Long> studentIds,
             Boolean sameForEveryone,
             Instant dueAt) {
+
+        public boolean challengeOrDefault() { return Boolean.TRUE.equals(challenge); }
 
         public int countOrDefault() { return count == null ? 10 : count; }
 
@@ -41,6 +44,7 @@ public final class AssignmentDtos {
             int problemCount,
             String code,
             boolean sameForEveryone,
+            boolean challenge,
             Long classroomId,
             String classroomName,
             long studentCount,
